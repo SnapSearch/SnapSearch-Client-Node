@@ -1,0 +1,40 @@
+{
+  "name": "snapsearch-client-nodejs",
+  "version": "1.0.0",
+  "description": "NodeJS HTTP Client Middleware Libraries for SnapSearch. Search engine optimisation for single page applications.",
+  "repository": "git://github.com/SnapSearch/SnapSearch-Client-Node",
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "npm prune",
+    "test": "make test"
+  },
+  "keywords": [
+    "seo",
+    "search",
+    "engine",
+    "optimisation",
+    "javascript",
+    "ajax",
+    "angular",
+    "ember",
+    "knockout",
+    "backbone",
+    "extjs",
+    "dojo"
+  ],
+  "author": "Jiby Jose",
+  "license": "MIT",
+  "dependencies": {
+    "request": "~2.33.0",
+    "jsonfile": "~1.1.1"
+  },
+  "devDependencies": {
+    "mocha": "~1.17.1",
+    "chai": "~1.9.0",
+    "express": "~3.4.8",
+    "supertest": "~0.9.0"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  }
+}
