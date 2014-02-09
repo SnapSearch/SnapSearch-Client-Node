@@ -48,7 +48,7 @@ function Client(
 Client.prototype.request = function(currentUrl,callback){
 
 	//the current url must contain the entire url with the _escaped_fragment_ parsed out
-	this.requestParameters.url = 'http://google.com';//currentUrl;
+	this.requestParameters.url = currentUrl;
 
 	this.api({
 	    method: 'POST',
