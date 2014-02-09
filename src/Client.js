@@ -58,17 +58,13 @@ Client.prototype.request = function(currentUrl,callback){
 	        pass: this.apiKey
 	    },
 	    timeout: 30000,
-	    json: this.requestParameters 
+	    json: this.requestParameters
 	},
 
 	function(error, status, response){
 
-		//ROGER: don't need to check for 200 status code. The only thing that matters is response.code and what it shows
-		//JIBY: Well we need to check for 200 status code. Its the code about connection with SnapSearch, 
-		// if it is not 200 means we didnt get a successfull response from SnapSearch and we dont have proper response
-		// means we dont have response.code to check if status code of request is not 200
-        // the thing you are confusing with is the status code is not about the request SnapSearch made but about our request to SnapSearch
-		if (!error && status.statusCode == 200) {
+		// we always have a response from SnapSearch Service if the request doesn't end up in an error
+		if (!error) {
 
 			if(response.code == 'success'){
 
@@ -88,16 +84,7 @@ Client.prototype.request = function(currentUrl,callback){
 
 		}else{
 
-			//ROGER: in what cases will the error object be true in Node.js? This exception is only relevant in PHP because of the potential that CURL (extension) can fail
-			//This should not be thrown in the case that the statusCode is say 4XX, 3XX, 2XX, 1XX and even perhaps in 5XX
-			//So it's meant to be a client failure, not server failure
-			//Because getting 5XX means that we did establish a connection to SnapSearch
-
-			//JIBY we would come here if we didnt get a response from SnapSearch, it can be either the url cannot be reached, either server crashed,
-			// or whatever reason we cant get a reponse back for the request. I think we shouldn't check status codes here as if it is an error 
-			// SnapSearch identifies it will return validation error all other cases it something wrong with the connection and the case comes here.
 			throw new SnapSearchException('Could not establish a connection to SnapSearch.');
-
 		}
 	});
 };
