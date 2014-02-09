@@ -34,7 +34,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, null, request);
+        var detector = new Detector();
+        detector.setRequest(request);
 
         assert.notOk(detector.detect(), 'should have returned false since its a normal browser request');
 
@@ -56,7 +57,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, null, request);
+        var detector = new Detector();
+        detector.setRequest(request);
 
         assert.ok(detector.detect(), 'should have returned true since its a search bot request');
 
@@ -79,7 +81,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, null, request);
+        var detector = new Detector();
+        detector.setRequest(request);
 
         assert.notOk(detector.detect(), 'should have returned false since its a SnapSearch bot request');
 
@@ -102,7 +105,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, null, request);
+        var detector = new Detector();
+        detector.setRequest(request);
 
         assert.notOk(detector.detect(), 'should have returned false since its a POST request');
 
@@ -125,7 +129,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,['^\/getReqObj'], null, request);
+        var detector = new Detector(false,['^\/getReqObj']);
+        detector.setRequest(request);
 
         assert.notOk(detector.detect(), 'should have returned false since its a ignored User Agent request');
 
@@ -148,7 +153,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, ['^\/non_matched_route'], request);
+        var detector = new Detector(false,null, ['^\/non_matched_route']);
+        detector.setRequest(request);
 
         assert.notOk(detector.detect(), 'should have returned false since its a Non Matching User Agent request');
 
@@ -171,7 +177,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, ['^\/getReqObj'], request);
+        var detector = new Detector(false,null, ['^\/getReqObj']);
+        detector.setRequest(request);
 
         assert.ok(detector.detect(), 'should have returned true since its a Matching User Agent request');
 
@@ -194,7 +201,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, null, request);
+        var detector = new Detector();
+         detector.setRequest(request);
 
         assert.ok(detector.detect(), 'should have returned true since its a request with _escape_fragment_ paramter');
 
@@ -220,7 +228,8 @@ describe('Detector', function(){
 
         var request =res.body;
 
-        var detector = new Detector(true,null, null, request);
+        var detector = new Detector();
+        detector.setRequest(request);
 
         // hack to change the custom ip and port since we use a mock server to generate the request object
         var url = detector.getEncodedUrl();

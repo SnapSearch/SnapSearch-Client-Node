@@ -15,14 +15,12 @@ module.exports = Detector;
  * @param boolean trustedProxy   Indicated if header from proxy is to be trusted
  * @param array   ignoredRoutes  Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
  * @param array   matchedRoutes  Array of whitelisted route regexes, any route not matching will be ignored during detection
- * @param Request request        Symfony Request Object
  * @param boolean robotsJson     Absolute path to a the Robots.json file
  */
 function Detector(
 	trustedProxy,
 	ignoredRoutes,
 	matchedRoutes,
-	request,
 	robotsJson
 ){
 	var self = this;
@@ -30,7 +28,6 @@ function Detector(
 	this.trustedProxy 	= (trustedProxy) ? true : false;
 	this.ignoredRoutes 	= (ignoredRoutes) ? ignoredRoutes : [];
 	this.matchedRoutes 	= (matchedRoutes) ? matchedRoutes : [];
-	this.request 		= (request) ? request : null; 
 	robotsJson 			= (robotsJson) ? robotsJson : __dirname + '/Robots.json';
 	this.robots 		= this.parseRobotsJson(robotsJson);
 
@@ -75,7 +72,7 @@ Detector.prototype.detect =  function(){
 	//detect ignored user agents, if true, then return false
 	var ignoreRegex =[];
 	for(i=0;i<this.robots.ignore.length;i++){
-		ignoreRegex[i] = pregQuote(this.robots.ignore[i]);
+		ignoreRegex[i] = regExpEscape(this.robots.ignore[i]);
 	}
 	ignoreRegex = new RegExp(ignoreRegex.join('|'), 'i');
    
@@ -115,7 +112,7 @@ Detector.prototype.detect =  function(){
 	//detect matched robots, if true, then return true
 	var matchRegex =[];
 	for(i=0;i<this.robots.match.length;i++){
-		matchRegex[i] = pregQuote(this.robots.match[i]);
+		matchRegex[i] = regExpEscape(this.robots.match[i]);
 	}
 
 	matchRegex = new RegExp(matchRegex.join('|'),'i');
@@ -241,7 +238,7 @@ Detector.prototype.getRealQsAndHashFragment = function(encode){
 /**
  * Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
  * 
- * @param  string $robotsJson Absolute path to Robots.json
+ * @param  string robotsJson Absolute path to Robots.json
  * 
  * @return array
  *
@@ -251,7 +248,14 @@ Detector.prototype.parseRobotsJson = function(robotsJson){
 	return JSON.parse(fs.readFileSync(robotsJson, 'utf8'));
 };
 
-// Helper Functions for php preg_quote (We have this here since we need to maintain compatability for Robots.json from php Client)
-function pregQuote(str, delimiter) {
-  return (str + '').replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
+/**
+ * Escapes regexp String
+ * 
+ * @param  string regexp string to escape
+ * 
+ * @return string
+ *
+ */
+function regExpEscape(str) {
+  return str.replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
 }

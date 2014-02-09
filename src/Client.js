@@ -28,6 +28,7 @@ function Client(
 
 	this.apiEmail = apiEmail;
 	this.apiKey = apiKey;
+	this.request = null;
 	this.requestParameters = (requestParameters) ? requestParameters : {};
 	this.apiUrl = (apiUrl) ? apiUrl : 'https://snapsearch.io/api/v1/robot';
 	this.api = (api) ? api : Api;
@@ -47,7 +48,7 @@ function Client(
 Client.prototype.request = function(currentUrl,callback){
 
 	//the current url must contain the entire url with the _escaped_fragment_ parsed out
-	this.requestParameters.url = currentUrl;
+	this.requestParameters.url = 'http://google.com';//currentUrl;
 
 	this.api({
 	    method: 'POST',
