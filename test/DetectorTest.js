@@ -173,12 +173,13 @@ describe('Detector', function () {
 
         });
 
-        it('Requests with _escape_fragment_ parameter should be intercepted', function (done) {
+        it('Requests with _escaped_fragment_ parameter should be intercepted', function (done) {
 
+            //this should be working with an empty _escaped_fragment_
             request(app)
-                .get('/getReqObj?blah=yay&_escaped_fragment_=key1%3Dlol')
+                .get('/getReqObj?key1=value1&_escaped_fragment_=')
                 .set('Accept', 'application/json')
-                .set('user-Agent', 'AdsBot-Google ( http://www.google.com/adsbot.html)')
+                .set('user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0')
                 .expect(200)
                 .end(function (err, res) {
                     if (err) return done(err);
@@ -188,7 +189,7 @@ describe('Detector', function () {
                     var detector = new Detector();
                     detector.setRequest(request);
 
-                    assert.ok(detector.detect(), 'should have returned true since its a request with _escape_fragment_ parameter');
+                    assert.ok(detector.detect(), 'should have returned true since its a request with _escaped_fragment_ parameter');
 
                     done();
                 });
@@ -202,7 +203,8 @@ describe('Detector', function () {
         it('_escape_fragment_ parameter should be properly encoded', function (done) {
 
             var a = request(app);
-            a.get('/getReqObj?blah=yay&_escaped_fragment_=key1%3Dlol')
+
+            a.get('/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2')
                 .set('Accept', 'application/json')
                 .set('user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0')
                 .expect(200)
@@ -220,7 +222,7 @@ describe('Detector', function () {
                     end.splice(0, 1);
                     url = url.split('://')[0] + '://localhost/' + end.join('/');
 
-                    assert.equal(url, 'http://localhost/getReqObj?blah=yay#!key1=lol', 'should have encoded _escape_fragment_ parameter properly');
+                    assert.equal(url, 'http://localhost/getReqObj?key1=value1#!/hashpath?key2=value2', 'should have encoded _escaped_fragment_ parameter properly');
 
                     done();
                 });
