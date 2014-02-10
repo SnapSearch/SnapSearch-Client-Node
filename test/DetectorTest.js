@@ -216,7 +216,7 @@ describe('Detector', function(){
 
 
   describe('#getEncodedUrl()', function(){
-    it('_escape_fragment_ paramter should be propely encoded', function(done){
+    it('_escape_fragment_ parameter should be propely encoded', function(done){
 
       var a = request(app);
       a.get('/getReqObj?blah=yay&_escaped_fragment_=key1%3Dlol')
