@@ -165,7 +165,7 @@ describe('Detector', function(){
 
 
 
-    it('Matching User Agent request should  be intercepted', function(done){
+    it('Matching User Agent request should be intercepted', function(done){
 
       request(app)
       .get('/getReqObj')
@@ -189,7 +189,7 @@ describe('Detector', function(){
 
 
 
-    it('Requests with _escape_fragment_ paramter should be intercepted', function(done){
+    it('Requests with _escape_fragment_ parameter should be intercepted', function(done){
 
       request(app)
       .get('/getReqObj?blah=yay&_escaped_fragment_=key1%3Dlol')
@@ -216,7 +216,7 @@ describe('Detector', function(){
 
 
   describe('#getEncodedUrl()', function(){
-    it('_escape_fragment_ parameter should be propely encoded', function(done){
+    it('_escape_fragment_ parameter should be properly encoded', function(done){
 
       var a = request(app);
       a.get('/getReqObj?blah=yay&_escaped_fragment_=key1%3Dlol')
@@ -237,7 +237,7 @@ describe('Detector', function(){
         end.splice(0,1);
         url = url.split('://')[0] + '://localhost/' + end.join('/');
 
-        assert.equal(url,'http://localhost/getReqObj?blah=yay#!key1=lol', 'should have encoded _escape_fragment_ paramter properly');
+        assert.equal(url,'http://localhost/getReqObj?blah=yay#!key1=lol', 'should have encoded _escape_fragment_ parameter properly');
 
         done();
       });
