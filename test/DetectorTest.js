@@ -188,7 +188,7 @@ describe('Detector', function () {
                     var detector = new Detector();
                     detector.setRequest(request);
 
-                    assert.ok(detector.detect(), 'should have returned true since its a request with _escape_fragment_ paramter');
+                    assert.ok(detector.detect(), 'should have returned true since its a request with _escape_fragment_ parameter');
 
                     done();
                 });
@@ -260,5 +260,5 @@ function toString(obj) {
 
     cache = null; // Enable garbage collection
     return string;
-    
+
 }
