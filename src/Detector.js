@@ -105,7 +105,7 @@ Detector.prototype.detect =  function(){
 	}
 
 	//detect escaped fragment (since the ignored user agents has been already been detected, SnapSearch won't continue the interception loop)
-	if(url.parse(this.request.url,true).query._escaped_fragment_){
+	if(this.request.url.indexOf('_escaped_fragment_')!=-1){
 		return true;
 	}
 
