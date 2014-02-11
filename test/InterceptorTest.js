@@ -38,7 +38,7 @@ describe('Interceptor', function () {
                     }
 
                     interceptor.intercept(res.body, function (data) {
-                        assert.instanceOf(data, Array, 'should have returned reponse content array');
+                        assert.instanceOf(data, Object, 'should have returned reponse content array');
                         done();
                     });
                 });
