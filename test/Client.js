@@ -1,7 +1,6 @@
 'use strict';
 /*globals describe*/
 
-describe('Client', function(){
-  describe('#request()', function(){
-  });
+describe('Client', function () {
+    describe('#request()', function () {});
 });
