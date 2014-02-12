@@ -13,6 +13,34 @@ Installation
 Usage
 -----
 
+Development
+-----------
+
+Install/update all dependencies:
+
+```
+npm install
+```
+
+Make your changes. Then use this to create a version in the package.json, ti also creates a new git tag.
+
+```
+npm version [<newversion> | major | minor | patch] -m "New release"
+```
+
+Synchronise and push the tag with:
+
+```
+git push
+git push --tags
+```
+
+Push the version to NPM:
+
+```
+npm publish
+```
+
 Tests
 ----
 
