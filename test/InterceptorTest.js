@@ -1,5 +1,5 @@
 'use strict';
-/*globals describe*/
+/*globals describe,it*/
 
 var SnapSearch = require( '../' );
 var assert = require( 'chai' ).assert;
@@ -15,7 +15,7 @@ app.post( '/getReqObj', function ( req, res ) {
     res.json( JSON.parse( toString( req )));
 });
 
-var client = new SnapSearch.Client( 'demo@polycademy.com', 'a2XEBCF6H5Tm9aYiwYRtdz7EirJDKbKHXl7LzA21boJVkxXD3E' );
+var client = new SnapSearch.Client();
 var detector = new SnapSearch.Detector();
 var interceptor = new SnapSearch.Interceptor( client, detector );
 
@@ -25,7 +25,6 @@ describe( 'Interceptor', function () {
 
         it( 'should intercept traffic and return response array from SnapSearch Service', function ( done ) {
 
-            this.timeout( 10000 );
             request( app )
             .get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
@@ -37,7 +36,21 @@ describe( 'Interceptor', function () {
 
                 detector.getEncodedUrl = function () {
                     return 'http://blah.com';
-                }
+                };
+
+                client.request = function(url,callback){
+                    var response = {
+                        status : 200,
+                        headers : {
+                            Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
+                        },
+                        html : '<html>Hi!</html>',
+                        screenshot : '',
+                        date : '324836'
+                    };
+
+                    callback(response);
+                };
 
                 interceptor.intercept( res.body, function ( data ) {
                     assert.instanceOf( data, Object, 'should have returned response content array' );
