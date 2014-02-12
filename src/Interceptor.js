@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * Interceptor intercepts the request and checks with the Detector if the request is valid for interception and then calls the Client for scraping and finally returns the content of the snapshot.
  */
@@ -12,9 +11,11 @@ module.exports = Interceptor;
  * @param Client   client   Client object
  * @param Detector detector Detector object
  */
-function Interceptor(client, detector) {
+function Interceptor( client, detector ) {
+
     this.client = client;
     this.detector = detector;
+    
 }
 
 /**
@@ -22,15 +23,16 @@ function Interceptor(client, detector) {
  *
  * @return array|boolean
  */
-Interceptor.prototype.intercept = function (request, callback) {
+Interceptor.prototype.intercept = function ( request, callback ) {
 
     // set current request for processing in detector
-    this.detector.setRequest(request);
+    this.detector.setRequest( request );
 
-    if (this.detector.detect()) {
+    if ( this.detector.detect()) {
         var rawCurrentUrl = this.detector.getEncodedUrl();
-        this.client.request(rawCurrentUrl, callback);
+        this.client.request( rawCurrentUrl, callback );
     } else {
-        callback(false);
+        callback( false );
     }
+
 };

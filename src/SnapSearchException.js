@@ -13,7 +13,7 @@ module.exports = SnapSearchException;
  * @param integer   code     Exception Code
  * @param Exception previous Previous exception
  */
-function SnapSearchException(message, errors) {
+function SnapSearchException( message, errors ) {
 
     this.message = message || '';
     this.errorsArray = errors;
@@ -21,7 +21,6 @@ function SnapSearchException(message, errors) {
 
 SnapSearchException.prototype = new Error();
 SnapSearchException.prototype.constructor = SnapSearchException;
-
 
 /**
  * Gets the error message
@@ -53,7 +52,7 @@ SnapSearchException.prototype.getErrors = function () {
  */
 SnapSearchException.prototype.getErrorString = function () {
 
-    return JSON.stringify(this.errorsArray, null, "\t");
+    return JSON.stringify( this.errorsArray, null, "\t" );
 
 };
 
@@ -62,9 +61,9 @@ SnapSearchException.prototype.getErrorString = function () {
  *
  * @param  object/string error Message of the error
  */
-SnapSearchException.prototype.appendError = function (error) {
+SnapSearchException.prototype.appendError = function ( error ) {
 
-    this.errorsArray.push(error);
+    this.errorsArray.push( error );
 
 };
 
@@ -73,8 +72,8 @@ SnapSearchException.prototype.appendError = function (error) {
  *
  * @param  object/string error Message of the error
  */
-SnapSearchException.prototype.prependError = function (error) {
+SnapSearchException.prototype.prependError = function ( error ) {
 
-    this.errorsArray.unshift(error);
+    this.errorsArray.unshift( error );
 
 };

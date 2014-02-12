@@ -1,8 +1,8 @@
 'use strict';
 
-var fs = require('fs');
-var jf = require('jsonfile');
-var url = require('url');
+var fs = require( 'fs' );
+var jf = require( 'jsonfile' );
+var url = require( 'url' );
 
 /**
  * Detector detects if the current request is from a search engine robot using the Robots.json file
@@ -25,22 +25,23 @@ function Detector(
 ) {
     var self = this;
 
-    this.trustedProxy = (trustedProxy) ? true : false;
-    this.ignoredRoutes = (ignoredRoutes) ? ignoredRoutes : [];
-    this.matchedRoutes = (matchedRoutes) ? matchedRoutes : [];
-    robotsJson = (robotsJson) ? robotsJson : __dirname + '/Robots.json';
-    this.robots = this.parseRobotsJson(robotsJson);
+    this.trustedProxy = ( trustedProxy ) ? true : false;
+    this.ignoredRoutes = ( ignoredRoutes ) ? ignoredRoutes : [];
+    this.matchedRoutes = ( matchedRoutes ) ? matchedRoutes : [];
+    robotsJson = ( robotsJson ) ? robotsJson : __dirname + '/Robots.json';
+    this.robots = this.parseRobotsJson( robotsJson );
 
 }
-
 
 /**
  * Sets the request object.
  *
  * @param object request      Request object
  */
-Detector.prototype.setRequest = function (request) {
+Detector.prototype.setRequest = function ( request ) {
+
     this.request = request;
+
 };
 
 /**
@@ -60,63 +61,63 @@ Detector.prototype.setRequest = function (request) {
  */
 Detector.prototype.detect = function () {
 
-    var userAgent = this.request.headers['user-agent'];
+    var userAgent = this.request.headers[ 'user-agent' ];
     var realPath = this.getDecodedPath();
     var i;
 
     //only intercept on get requests, SnapSearch robot cannot submit a POST, PUT or DELETE request
-    if (this.request.method != 'GET') {
+    if ( this.request.method != 'GET' ) {
         return false;
     }
 
     //detect ignored user agents, if true, then return false
     var ignoreRegex = [];
-    for (i = 0; i < this.robots.ignore.length; i++) {
-        ignoreRegex[i] = regExpEscape(this.robots.ignore[i]);
+    for ( i = 0; i < this.robots.ignore.length; i++ ) {
+        ignoreRegex[ i ] = regExpEscape( this.robots.ignore[ i ]);
     }
-    ignoreRegex = new RegExp(ignoreRegex.join('|'), 'i');
+    ignoreRegex = new RegExp( ignoreRegex.join( '|' ), 'i' );
 
-    if (ignoreRegex.test(userAgent)) {
+    if ( ignoreRegex.test( userAgent )) {
         return false;
     }
 
     //if the requested route doesn't match any of the whitelisted routes, then the request is ignored
     //of course this only runs if there are any routes on the whitelist
-    if (this.matchedRoutes.length > 0) {
+    if ( this.matchedRoutes.length > 0 ) {
         var matchedWhitelist = false;
-        for (i = 0; i < this.matchedRoutes.length; i++) {
-            var matched_route_regex = new RegExp(this.matchedRoutes[i], 'i');
-            if (matched_route_regex.test(realPath)) {
+        for ( i = 0; i < this.matchedRoutes.length; i++ ) {
+            var matched_route_regex = new RegExp( this.matchedRoutes[ i ], 'i' );
+            if ( matched_route_regex.test( realPath )) {
                 matchedWhitelist = true;
                 break;
             }
         }
-        if (!matchedWhitelist) {
+        if ( !matchedWhitelist ) {
             return false;
         }
     }
 
     //detect ignored routes
-    for (i = 0; i < this.ignoredRoutes.length; i++) {
-        var ignored_route_regex = new RegExp(this.ignoredRoutes[i], 'i');
-        if (ignored_route_regex.test(realPath)) {
+    for ( i = 0; i < this.ignoredRoutes.length; i++ ) {
+        var ignored_route_regex = new RegExp( this.ignoredRoutes[ i ], 'i' );
+        if ( ignored_route_regex.test( realPath )) {
             return false;
         }
     }
 
     //detect escaped fragment (since the ignored user agents has been already been detected, SnapSearch won't continue the interception loop)
-    if (this.request.url.indexOf('_escaped_fragment_') != -1) {
+    if ( this.request.url.indexOf( '_escaped_fragment_' ) != -1 ) {
         return true;
     }
 
     //detect matched robots, if true, then return true
     var matchRegex = [];
-    for (i = 0; i < this.robots.match.length; i++) {
-        matchRegex[i] = regExpEscape(this.robots.match[i]);
+    for ( i = 0; i < this.robots.match.length; i++ ) {
+        matchRegex[ i ] = regExpEscape( this.robots.match[ i ]);
     }
 
-    matchRegex = new RegExp(matchRegex.join('|'), 'i');
-    if (matchRegex.test(userAgent)) {
+    matchRegex = new RegExp( matchRegex.join( '|' ), 'i' );
+    if ( matchRegex.test( userAgent )) {
         return true;
     }
 
@@ -124,7 +125,6 @@ Detector.prototype.detect = function () {
     return false;
 
 };
-
 
 /**
  * Gets the encoded URL that is passed to SnapSearch so that SnapSearch can scrape the encoded URL.
@@ -134,11 +134,11 @@ Detector.prototype.detect = function () {
  */
 Detector.prototype.getEncodedUrl = function () {
 
-    if (this.request.url.indexOf('_escaped_fragment_') != -1) {
+    if ( this.request.url.indexOf( '_escaped_fragment_' ) != -1 ) {
 
-        var qsAndHash = this.getRealQsAndHashFragment(true);
+        var qsAndHash = this.getRealQsAndHashFragment( true );
 
-        var url = this.getProtocolString() + '://' + this.request.headers.host + this.request.url.split('?')[0] + qsAndHash.qs + qsAndHash.hash;
+        var url = this.getProtocolString() + '://' + this.request.headers.host + this.request.url.split( '?' )[ 0 ] + qsAndHash.qs + qsAndHash.hash;
 
         return url;
 
@@ -147,8 +147,8 @@ Detector.prototype.getEncodedUrl = function () {
         return this.request.headers.host + this.request.url;
 
     }
-};
 
+};
 
 /**
  * Detected whether its a http ot https request.
@@ -157,16 +157,18 @@ Detector.prototype.getEncodedUrl = function () {
  * @return returns the protocol string
  */
 Detector.prototype.getProtocolString = function () {
-    if (this.request.connection && this.request.connection.encrypted) {
+
+    if ( this.request.connection && this.request.connection.encrypted ) {
         return 'https';
     }
-    if (!this.trustedProxy) {
+    if ( !this.trustedProxy ) {
         return 'http';
     }
-    var proto = this.request.headers['x-forwarded-for'] || 'http';
-    return proto.split(/\s*,\s*/)[0];
-};
+    var proto = this.request.headers[ 'x-forwarded-for' ] || 'http';
 
+    return proto.split( /\s*,\s*/ )[ 0 ];
+
+};
 
 /**
  * Gets the decoded URL path relevant for detecting matched or ignored routes during detection.
@@ -176,17 +178,17 @@ Detector.prototype.getProtocolString = function () {
  */
 Detector.prototype.getDecodedPath = function () {
 
-    if (this.request.url.indexOf('_escaped_fragment_') != -1) {
+    if ( this.request.url.indexOf( '_escaped_fragment_' ) != -1 ) {
 
-        var qsAndHash = this.getRealQsAndHashFragment(false);
+        var qsAndHash = this.getRealQsAndHashFragment( false );
 
-        var path = this.request.url.split('&')[0] + qsAndHash.qs + qsAndHash.hash;
+        var path = this.request.url.split( '&' )[ 0 ] + qsAndHash.qs + qsAndHash.hash;
 
         return path;
 
     } else {
 
-        return decodeURIComponent(this.request.url);
+        return decodeURIComponent( this.request.url );
     }
 
 };
@@ -209,28 +211,28 @@ Detector.prototype.getDecodedPath = function () {
  *
  * @return array           Array of query string and hash fragment
  */
-Detector.prototype.getRealQsAndHashFragment = function (encode) {
+Detector.prototype.getRealQsAndHashFragment = function ( encode ) {
 
-    var queryParameters = url.parse(this.request.url, true).query;
+    var queryParameters = url.parse( this.request.url, true ).query;
 
     var hashString = queryParameters._escaped_fragment_;
 
     delete queryParameters._escaped_fragment_;
 
     var queryString = [],
-        i;
+    i;
 
-    for (i in queryParameters) {
-        if (encode) {
-            queryString.push(encodeURIComponent(i) + '=' + encodeURIComponent(queryParameters[i]));
+    for ( i in queryParameters ) {
+        if ( encode ) {
+            queryString.push( encodeURIComponent( i ) + '=' + encodeURIComponent( queryParameters[ i ]));
         } else {
-            queryString.push(i + '=' + queryParameters[i]);
+            queryString.push( i + '=' + queryParameters[ i ]);
         }
     }
 
-    queryString = '?' + queryString.join('&');
+    queryString = '?' + queryString.join( '&' );
 
-    if (hashString) {
+    if ( hashString ) {
         hashString = '#!' + hashString;
     } else {
         hashString = '';
@@ -240,6 +242,7 @@ Detector.prototype.getRealQsAndHashFragment = function (encode) {
         qs: queryString,
         hash: hashString
     };
+
 };
 
 /**
@@ -251,8 +254,10 @@ Detector.prototype.getRealQsAndHashFragment = function (encode) {
  *
  * @throws Exception If json decoding didn't work
  */
-Detector.prototype.parseRobotsJson = function (robotsJson) {
-    return JSON.parse(fs.readFileSync(robotsJson, 'utf8'));
+Detector.prototype.parseRobotsJson = function ( robotsJson ) {
+
+    return JSON.parse( fs.readFileSync( robotsJson, 'utf8' ));
+
 };
 
 /**
@@ -263,6 +268,8 @@ Detector.prototype.parseRobotsJson = function (robotsJson) {
  * @return string
  *
  */
-function regExpEscape(str) {
-    return str.replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
+function regExpEscape( str ) {
+
+    return str.replace( /([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1' ).replace( /\x08/g, '\\x08' );
+    
 }
