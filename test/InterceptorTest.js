@@ -46,7 +46,8 @@ describe( 'Interceptor', function () {
                         },
                         html : '<html>Hi!</html>',
                         screenshot : '',
-                        date : '324836'
+                        date : '324836',
+                        cache: false
                     };
 
                     callback(response);
