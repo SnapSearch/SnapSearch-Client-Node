@@ -45,9 +45,6 @@ Detector.prototype.setRequest = function ( request ) {
 };
 
 /**
- * Only run in HTTP and HTTPS server
- * Donot run in requests for static files.
- *
  * Detects if the request came from a search engine robot. It will intercept in cascading order:
  * 1. on a GET request
  * 2. not on any ignored robot user agents
@@ -56,6 +53,8 @@ Detector.prototype.setRequest = function ( request ) {
  * 5. not on any static files that is not a PHP file if it is detected
  * 6. on requests with _escaped_fragment_ query parameter
  * 7. on any matched robot user agents
+ * This should only be executed on an HTTP or HTTPS connection.
+ * Therefore this function does not deliberate "detecting" on an HTTP or HTTPS protocol
  *
  * @return boolean
  */
@@ -67,11 +66,6 @@ Detector.prototype.detect = function () {
 
     //only intercept on get requests, SnapSearch robot cannot submit a POST, PUT or DELETE request
     if ( this.request.method != 'GET' ) {
-        return false;
-    }
-
-    //only intercept on http or https protocols
-    if ( this.getProtocolString() != 'http' && this.getProtocolString() != 'https' ) {
         return false;
     }
 
