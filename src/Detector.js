@@ -5,7 +5,7 @@ var jf = require( 'jsonfile' );
 var url = require( 'url' );
 
 /**
- * Detector detects if the current request is from a search engine robot using the Robots.json file
+ * Detector detects if the current request is from a search engine robot using the robots.json file
  */
 module.exports = Detector;
 
@@ -15,7 +15,7 @@ module.exports = Detector;
  * @param boolean trustedProxy   Indicated if header from proxy is to be trusted
  * @param array   ignoredRoutes  Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
  * @param array   matchedRoutes  Array of whitelisted route regexes, any route not matching will be ignored during detection
- * @param boolean robotsJson     Absolute path to a the Robots.json file
+ * @param boolean robotsJson     Absolute path to a the robots.json file
  */
 function Detector(
     trustedProxy,
@@ -28,7 +28,7 @@ function Detector(
     this.trustedProxy = ( trustedProxy ) ? true : false;
     this.ignoredRoutes = ( ignoredRoutes ) ? ignoredRoutes : [];
     this.matchedRoutes = ( matchedRoutes ) ? matchedRoutes : [];
-    robotsJson = ( robotsJson ) ? robotsJson : __dirname + '/Robots.json';
+    robotsJson = ( robotsJson ) ? robotsJson : __dirname + '/../resources/robots.json';
     this.robots = this.parseRobotsJson( robotsJson );
 
 }
@@ -245,9 +245,9 @@ Detector.prototype.getRealQsAndHashFragment = function ( encode ) {
 };
 
 /**
- * Parses the Robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
+ * Parses the robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
  *
- * @param  string robotsJson Absolute path to Robots.json
+ * @param  string robotsJson Absolute path to robots.json
  *
  * @return array
  *
