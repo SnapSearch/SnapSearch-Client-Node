@@ -70,6 +70,11 @@ Detector.prototype.detect = function () {
         return false;
     }
 
+    //only intercept on http or https protocols
+    if ( this.getProtocolString() != 'http' && this.getProtocolString() != 'https' ) {
+        return false;
+    }
+
     //detect ignored user agents, if true, then return false
     var ignoreRegex = [];
     for ( i = 0; i < this.robots.ignore.length; i++ ) {
@@ -164,7 +169,7 @@ Detector.prototype.getProtocolString = function () {
     if ( !this.trustedProxy ) {
         return 'http';
     }
-    var proto = this.request.headers[ 'x-forwarded-for' ] || 'http';
+    var proto = this.request.headers[ 'x-forwarded-proto' ] || 'http';
 
     return proto.split( /\s*,\s*/ )[ 0 ];
 
