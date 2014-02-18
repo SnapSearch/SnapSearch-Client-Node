@@ -269,7 +269,7 @@ describe( 'Detector', function () {
 
                 detector.robots.ignore.push('Adsbot-Google');
 
-                assert.notOk( detector.detect(), 'should have returned false sinde UserAgent is in ignore list' );
+                assert.notOk( detector.detect(), 'should have returned false since UserAgent is in ignore list' );
 
                 done();
 
