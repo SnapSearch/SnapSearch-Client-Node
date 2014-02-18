@@ -128,7 +128,7 @@ describe( 'Detector', function () {
 
                 var request = res.body;
 
-                var detector = new Detector( false, [ '^\/getReqObj' ]);
+                var detector = new Detector( [ '^\/getReqObj' ]);
                 detector.setRequest( request );
 
                 assert.notOk( detector.detect(), 'should have returned false since its a ignored User Agent request' );
@@ -152,7 +152,7 @@ describe( 'Detector', function () {
 
                 var request = res.body;
 
-                var detector = new Detector( false, null, [ '^\/non_matched_route' ]);
+                var detector = new Detector( null, [ '^\/non_matched_route' ]);
                 detector.setRequest( request );
 
                 assert.notOk( detector.detect(), 'should have returned false since its a Non Matching User Agent request' );
@@ -176,7 +176,7 @@ describe( 'Detector', function () {
 
                 var request = res.body;
 
-                var detector = new Detector( false, null, [ '^\/getReqObj' ]);
+                var detector = new Detector( null, [ '^\/getReqObj' ]);
                 detector.setRequest( request );
 
                 assert.ok( detector.detect(), 'should have returned true since its a Matching User Agent request' );
@@ -240,6 +240,36 @@ describe( 'Detector', function () {
                 url = url.split( '://' )[ 0 ] + '://localhost/' + end.join( '/' );
 
                 assert.equal( url, 'http://localhost/getReqObj?key1=value1#!/hashpath?key2=value2', 'should have encoded _escaped_fragment_ parameter properly' );
+
+                done();
+
+            });
+
+        });
+
+    });
+
+    describe( '#robots', function () {
+
+        it( 'robots array should be modifyable programically', function ( done ) {
+
+            request( app )
+            .get( '/getReqObj' )
+            .set( 'Accept', 'application/json' )
+            .set( 'user-Agent', 'Adsbot-Google' )
+            .expect( 200 )
+            .end(function ( err, res ) {
+
+                if ( err ) return done( err );
+
+                var request = res.body;
+
+                var detector = new Detector();
+                detector.setRequest( request );
+
+                detector.robots.ignore.push('Adsbot-Google');
+
+                assert.notOk( detector.detect(), 'should have returned false sinde UserAgent is in ignore list' );
 
                 done();
 

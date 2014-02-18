@@ -12,15 +12,15 @@ module.exports = Detector;
 /**
  * Constructor
  *
- * @param boolean trustedProxy   Indicated if header from proxy is to be trusted
  * @param array   ignoredRoutes  Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
  * @param array   matchedRoutes  Array of whitelisted route regexes, any route not matching will be ignored during detection
+ * @param boolean trustedProxy   Indicated if header from proxy is to be trusted
  * @param boolean robotsJson     Absolute path to a the robots.json file
  */
 function Detector(
-    trustedProxy,
     ignoredRoutes,
     matchedRoutes,
+    trustedProxy,
     robotsJson
 ) {
     var self = this;

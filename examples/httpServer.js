@@ -7,6 +7,9 @@ var client = new SnapSearch.Client('demo@polycademy.com', 'a2XEBCF6H5Tm9aYiwYRtd
 var detector = new SnapSearch.Detector();
 var interceptor = new SnapSearch.Interceptor(client, detector);
 
+// robots object can be manipulated in code
+ detector.robots.ignore.push('Adsbot-Google');
+
 
 http.createServer(function (req, res) {
     try {
