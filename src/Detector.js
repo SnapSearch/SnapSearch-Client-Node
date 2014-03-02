@@ -23,7 +23,6 @@ function Detector(
     trustedProxy,
     robotsJson
 ) {
-    var self = this;
 
     this.trustedProxy = ( trustedProxy ) ? true : false;
     this.ignoredRoutes = ( ignoredRoutes ) ? ignoredRoutes : [];
