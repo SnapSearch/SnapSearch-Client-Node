@@ -57,7 +57,8 @@ Client.prototype.request = function ( currentUrl, callback ) {
                 pass: this.apiKey
             },
             timeout: 30000,
-            json: this.requestParameters
+            json: this.requestParameters,
+            strictSSL: true
         },
         function ( error, status, response ) {
 

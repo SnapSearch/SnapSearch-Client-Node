@@ -7,7 +7,7 @@ var detector = new SnapSearch.Detector();
 var interceptor = new SnapSearch.Interceptor(client, detector);
 
 // robots object can be manipulated in code
- detector.robots.ignore.push('Adsbot-Google');
+// detector.robots.ignore.push('Adsbot-Google');
 
 app.use(function (req, res, next) {
 
