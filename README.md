@@ -10,8 +10,16 @@ SnapSearch provides similar libraries in other languages: https://github.com/Sna
 Installation
 ------------
 
+Install it from NPM.
+
+```
+npm install snapsearch-client-nodejs --save
+```
+
 Usage
 -----
+
+Check the examples folder.
 
 Development
 -----------
