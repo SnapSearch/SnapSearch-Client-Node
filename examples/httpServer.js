@@ -12,6 +12,7 @@ var interceptor = new SnapSearch.Interceptor(client, detector);
 
 
 http.createServer(function (req, res) {
+    
     try {
         // call interceptor
         interceptor.intercept(req, function (data) {

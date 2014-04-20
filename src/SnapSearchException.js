@@ -15,6 +15,7 @@ module.exports = SnapSearchException;
  */
 function SnapSearchException( message, errors ) {
 
+    this.name = 'SnapSearchException';
     this.message = message || '';
     this.errorsArray = errors;
 }
