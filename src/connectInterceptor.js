@@ -1,7 +1,7 @@
 'use strict';
 
 /*
-app.use(require('snapsearch-client-nodejs').intercept({
+app.use(require('snapsearch-client-nodejs').connect({
     email: '',
     key: '',
     parameters:{},

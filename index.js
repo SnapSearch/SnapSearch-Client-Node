@@ -5,4 +5,4 @@ exports.Detector = require('./src/Detector');
 exports.Interceptor = require('./src/Interceptor');
 exports.SnapSearchException = require('./src/SnapSearchException');
 
-exports.intercept = require('./src/connectInterceptor');
+exports.connect = require('./src/connectInterceptor');
