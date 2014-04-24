@@ -53,8 +53,7 @@ module.exports = function (options) {
         detector
     );
 
-    interceptor.beforeIntercept(options.beforeIntercept);
-    interceptor.afterIntercept(options.afterIntercept);
+    interceptor.beforeIntercept(options.beforeIntercept).afterIntercept(options.afterIntercept);
 
     return function (request, response, next) {
 
