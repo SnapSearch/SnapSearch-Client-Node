@@ -1,32 +1,30 @@
 'use strict';
 
-/*
-app.use(require('snapsearch-client-nodejs').connect({
-    email: '',
-    key: '',
-    parameters:{},
-    apiUrl: '',
-    api: require('requests'),
-    ignoredRoutes: [],
-    matchedRoutes: [],
-    checkFileExtensions: true,
-    trustedProxy: true,
-    robotsJson: '',
-    extensionsJson: '',
-    beforeIntercept: function () {
-    
-    },
-    afterIntercept: function () {
-    
-    },
-    responseCallback: function () {
-    
-    },
-    exceptionCallback: function () {
-    
-    }
-}));
-*/
+/**
+ * Connect Interceptor. 
+ * This integrates the SnapSearch Client as a declarative connect middleware.
+ * You can use it like this:
+ *
+ * app.use(require('snapsearch-client-nodejs').connect({
+ *     email: '',
+ *     key: '',
+ *     parameters:{},
+ *     ignoredRoutes: [],
+ *     matchedRoutes: [],
+ *     checkFileExtensions: false,
+ *     trustedProxy: true,
+ *     robotsJson: '',
+ *     extensionsJson: '',
+ *     beforeIntercept: function (url) {},
+ *     afterIntercept: function (url, response) {},
+ *     responseCallback: function (data) {},
+ *     exceptionCallback: function (error, request) {}
+ * }));
+ * 
+ * @param  object options Options object
+ *
+ * @return function Connect middleware function accepting request, response and next
+ */
 module.exports = function (options) {
 
     var Client = require('./Client');
@@ -112,7 +110,7 @@ module.exports = function (options) {
         } catch (error) {
 
             if (options.exceptionCallback) {
-                options.exceptionCallback(error, request, response);
+                options.exceptionCallback(error, request);
             }
 
             next();
