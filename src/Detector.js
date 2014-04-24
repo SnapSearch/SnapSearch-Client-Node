@@ -1,7 +1,6 @@
 'use strict';
 
 var fs = require( 'fs' );
-var jf = require( 'jsonfile' );
 var url = require( 'url' );
 
 /**
@@ -12,23 +11,33 @@ module.exports = Detector;
 /**
  * Constructor
  *
- * @param array   ignoredRoutes  Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
- * @param array   matchedRoutes  Array of whitelisted route regexes, any route not matching will be ignored during detection
- * @param boolean trustedProxy   Indicated if header from proxy is to be trusted
- * @param boolean robotsJson     Absolute path to a the robots.json file
+ * @param array   ignoredRoutes       Array of blacklised route regexes that will be ignored during detection, you can use relative directory paths
+ * @param array   matchedRoutes       Array of whitelisted route regexes, any route not matching will be ignored during detection
+ * @param boolean checkFileExtensions Boolean to check if the url is going to a static file resource that should not be intercepted. This is prevent SnapSearch from attempting to scrape files which are not HTML. This is false by default as it depends on your routing structure.
+ * @param boolean trustedProxy        Indicated if header from proxy is to be trusted
+ * @param string  robotsJson          Absolute path to a robots.json file
+ * @param string  extensionsJson      Absolute path to a extensions.json file
  */
 function Detector(
     ignoredRoutes,
     matchedRoutes,
+    checkFileExtensions,
     trustedProxy,
-    robotsJson
+    robotsJson,
+    extensionsJson
 ) {
 
-    this.trustedProxy = ( trustedProxy ) ? true : false;
     this.ignoredRoutes = ( ignoredRoutes ) ? ignoredRoutes : [];
     this.matchedRoutes = ( matchedRoutes ) ? matchedRoutes : [];
+
+    this.checkFileExtensions = ( checkFileExtensions ) ? true : false;
+    this.trustedProxy = ( trustedProxy ) ? true : false;
+
     robotsJson = ( robotsJson ) ? robotsJson : __dirname + '/../resources/robots.json';
-    this.robots = this.parseRobotsJson( robotsJson );
+    this.robots = this.parseJson( robotsJson );
+
+    extensionsJson = ( extensionsJson ) ? extensionsJson : __dirname + '/../resources/extensions.json';
+    this.extensions = this.parseJson( extensionsJson );
 
 }
 
@@ -45,15 +54,15 @@ Detector.prototype.setRequest = function ( request ) {
 
 /**
  * Detects if the request came from a search engine robot. It will intercept in cascading order:
- * 1. on a GET request
- * 2. not on any ignored robot user agents
- * 3. not on any route not matching the whitelist
- * 4. not on any route matching the blacklist
- * 5. not on any static files that is not a PHP file if it is detected
- * 6. on requests with _escaped_fragment_ query parameter
- * 7. on any matched robot user agents
- * This should only be executed on an HTTP or HTTPS connection.
- * Therefore this function does not deliberate "detecting" on an HTTP or HTTPS protocol
+ * 
+ * 1. on an HTTP or HTTPS protocol
+ * 2. on a GET request
+ * 3. not on any ignored robot user agents (ignored robots take precedence over matched robots)
+ * 4. not on any route not matching the whitelist
+ * 5. not on any route matching the blacklist
+ * 6. not on any invalid file extensions if there is a file extension
+ * 7. on requests with _escaped_fragment_ query parameter
+ * 8. on any matched robot user agents
  *
  * @return boolean
  */
@@ -62,6 +71,11 @@ Detector.prototype.detect = function () {
     var userAgent = this.request.headers[ 'user-agent' ];
     var realPath = this.getDecodedPath();
     var i;
+
+    //only intercept on http or https protocols
+    if ( this.getProtocolString() !== 'http' && this.getProtocolString() !== 'https' ) {
+        return false;
+    }
 
     //only intercept on get requests, SnapSearch robot cannot submit a POST, PUT or DELETE request
     if ( this.request.method != 'GET' ) {
@@ -101,6 +115,60 @@ Detector.prototype.detect = function () {
         if ( ignored_route_regex.test( realPath )) {
             return false;
         }
+    }
+
+    //detect extensions in order to prevent direct requests to static files
+    if ( this.checkFileExtensions ) {
+
+        var genericExtensions = ( Array.isArray( this.extensions ) && this.extensions.length > 0 ) ? this.extensions : [];
+
+        var jsExtensions = ( Array.isArray( this.extensions['js'] ) && this.extensions['js'].length > 0 ) ? this.extensions['js'] : [];
+
+        //merge, reduce to unique, and map to lowercase strings
+        var validExtensions = genericExtensions
+            .concat(jsExtensions)
+            .reduce(function ( previous, current ) {
+                if ( previous.indexOf (current) < 0 ) previous.push( current );
+                return previous;
+            }, [])
+            .map(function (element) {
+                return element.toString().toLowerCase();
+            });
+
+        //regex for url file extensions, it looks for "/{file}.{extension}" in an url that is not preceded by ? (query parameters) or # (hash fragment)
+        //it will acquire the last extension that is present in the URL
+        //so with "/{file1}.{extension1}/{file2}.{extension2}" the extension2 will be the extension that is matched 
+        //furthermore if a file has multiple extensions "/{file}.{extension1}.{extension2}", it will only match extension2 because unix systems don't consider extensions to be metadata, and windows only considers the last extension to be valid metadata. Basically the {file}.{extension1} could actually just be the filename
+        var extensionRegex = new RegExp(
+            '^' +                 // Regex begins at the beginning of the string
+            '(?:' +               // Begin non-capturing group
+                '(?!' +           // Negative lookahead, this presence of such a sequence will fail the regex
+                    '[?#]' +      // Question mark or hash character
+                    '[\\s\\S]*' + // Any or more wildcard characters
+                    '\\/' +       // Literal slash
+                    '[^/?#]+' +   // {file} - has one or more of any character except forward slash, question mark or hash
+                    '\\.' +       // Literal dot
+                    '[^/?#]+' +   // {extension} - has one or more of any character except forward slash, question mark or hash
+                ')' +             // This negative lookahead prevents any ? or # that precedes the {file}.{extension} by any characters
+                '[\\s\\S]' +      // Wildcard
+            ')*' +                // Non-capturing group that will capture any number of wildcard that passes the negative lookahead
+            '\\/' +               // Literal slash
+            '[^/?#]+' +           // {file} - has one or more of any character except forward slash, question mark or hash
+            '\\.' +               // Literal dot
+            '([^/?#]+)'           // {extension} - Subgroup has one or more of any character except forward slash, question mark or hash
+        );
+
+        //extension regex will be tested against the decoded path, not the full url to avoid domain extensions
+        //if no extensions were found, then it's a pass
+        var match = realPath.match(extensionRegex);
+        if ( match ) {
+            var urlExtension = match[1].toLowerCase();
+            //found an extension, check if it is valid
+            if ( validExtensions.indexOf( urlExtension ) === -1 ) {
+                return false;
+            }
+        }
+
     }
 
     //detect escaped fragment (since the ignored user agents has been already been detected, SnapSearch won't continue the interception loop)
@@ -149,7 +217,7 @@ Detector.prototype.getEncodedUrl = function () {
 };
 
 /**
- * Detected whether its a http ot https request.
+ * Detect whether its a http or https request.
  * If trustedProxy is set we trust the proxy and look at its headers to determine if request was https or http.
  *
  * @return returns the protocol string
@@ -244,17 +312,17 @@ Detector.prototype.getRealQsAndHashFragment = function ( encode ) {
 };
 
 /**
- * Parses the robots.json file by decoding the JSON and throwing an exception if the decoding went wrong.
+ * Parses a json file by decoding the JSON and throwing an exception if the decoding went wrong.
  *
- * @param  string robotsJson Absolute path to robots.json
+ * @param  string jsonFile Absolute path to json file
  *
  * @return array
  *
  * @throws Exception If json decoding didn't work
  */
-Detector.prototype.parseRobotsJson = function ( robotsJson ) {
+Detector.prototype.parseJson = function ( jsonFile ) {
 
-    return JSON.parse( fs.readFileSync( robotsJson, 'utf8' ));
+    return JSON.parse( fs.readFileSync( jsonFile, 'utf8' ));
 
 };
 
@@ -264,7 +332,6 @@ Detector.prototype.parseRobotsJson = function ( robotsJson ) {
  * @param  string regexp string to escape
  *
  * @return string
- *
  */
 function regExpEscape( str ) {
 

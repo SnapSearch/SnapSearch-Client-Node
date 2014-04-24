@@ -25,8 +25,7 @@
   "author": "Jiby Jose",
   "license": "MIT",
   "dependencies": {
-    "request": "~2.33.0",
-    "jsonfile": "~1.1.1"
+    "request": "~2.33.0"
   },
   "devDependencies": {
     "mocha": "~1.17.1",
