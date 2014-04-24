@@ -5,55 +5,30 @@
  * This integrates the SnapSearch Client as a declarative connect middleware.
  * You can use it like this:
  *
- * app.use(require('snapsearch-client-nodejs').connect({
- *     email: '',
- *     key: '',
- *     parameters:{},
- *     ignoredRoutes: [],
- *     matchedRoutes: [],
- *     checkFileExtensions: false,
- *     trustedProxy: true,
- *     robotsJson: '',
- *     extensionsJson: '',
- *     beforeIntercept: function (url) {},
- *     afterIntercept: function (url, response) {},
- *     responseCallback: function (data) {},
- *     exceptionCallback: function (error, request) {}
- * }));
+ * var snapsearch = require('snapsearch-client-nodejs');
+ * app.use(snapsearch.connect(
+ *     new snapsearch.Interceptor(
+ *         new snapsearch.Client(EMAIL, KEY),
+ *         new snapsearch.Detector()
+ *     ),
+ *     function (data) {
+ *         //custom response callback
+ *         //return {status: 200, html: '', headers: [{name: '', value: ''}]}
+ *     },
+ *     function (error, request) {
+ *         //custom exception handler
+ *     }
+ * ));
  * 
- * @param  object options Options object
+ * @param object   interceptor       Interceptor object
+ * @param function responseCallback  Optional custom response callback accepting data parameter.
+ *                                   It can return an object {status:200, html:'', headers:[{name:'', value: ''}]} 
+ *                                   which will be sent as the HTTP response.
+ * @param function exceptionCallback Optional custom exception callback accepting error and request parameters.
  *
  * @return function Connect middleware function accepting request, response and next
  */
-module.exports = function (options) {
-
-    var Client = require('./Client');
-    var Detector = require('./Detector');
-    var Interceptor = require('./Interceptor'); 
-
-    var client = new Client (
-        options.email,
-        options.key,
-        options.parameters,
-        options.apiUrl,
-        options.api
-    );
-
-    var detector = new Detector (
-        options.ignoredRoutes,
-        options.matchedRoutes,
-        options.checkFileExtensions,
-        options.trustedProxy,
-        options.robotsJson,
-        options.extensionsJson
-    );
-
-    var interceptor = new Interceptor (
-        client,
-        detector
-    );
-
-    interceptor.beforeIntercept(options.beforeIntercept).afterIntercept(options.afterIntercept);
+module.exports = function (interceptor, responseCallback, exceptionCallback) {
 
     return function (request, response, next) {
 
@@ -63,9 +38,9 @@ module.exports = function (options) {
 
                 if (data) {
 
-                    if (options.responseCallback) {
+                    if (responseCallback) {
 
-                        data = options.responseCallback(data);
+                        data = responseCallback(data);
 
                         if (!data.status) {
                             data.status = 200;
@@ -108,8 +83,8 @@ module.exports = function (options) {
 
         } catch (error) {
 
-            if (options.exceptionCallback) {
-                options.exceptionCallback(error, request);
+            if (exceptionCallback) {
+                exceptionCallback(error, request);
             }
 
             next();

@@ -1,54 +1,34 @@
 var express = require('express');
-var SnapSearch = require('../');
+var snapsearch = require('snapsearch-client-nodejs');
 
 var app = express();
-var client = new SnapSearch.Client('demo@polycademy.com', 'a2XEBCF6H5Tm9aYiwYRtdz7EirJDKbKHXl7LzA21boJVkxXD3E');
-var detector = new SnapSearch.Detector();
-var interceptor = new SnapSearch.Interceptor(client, detector);
 
-// robots object can be manipulated in code
-// detector.robots.ignore.push('Adsbot-Google');
+app.use(snapsearch.connect(
+    new snapsearch.Interceptor(
+        new snapsearch.Client('EMAIL', 'KEY'),
+        new snapsearch.Detector()
+    ),
+    function (data) {
 
-app.use(function (req, res, next) {
+        //return an object for custom response handling
+        return {
+            status: data.status,
+            html: data.html,
+            headers: data.headers
+        };
 
-    try {
+    },
+    function (error, request) {
 
-        // call interceptor
-        interceptor.intercept(req, function (data) {
-            // if we get data back it was a bot and we have a snapshot back from SnapSearch
-            if (data) {
-
-                console.log('Was a robot and SnapChat Intercepted it Correctly');
-
-                if (data.headers) {
-                    data.headers.forEach(function (header) {
-                        if (header.name.toLowerCase() === 'location') {
-                            res.location(header.value);
-                        }
-                    });
-                }
-
-                return res.send(data.status, data.html);
-
-            } else { // It is a normal request continue normally
-
-                next();
-            
-            }
-        });
-
-    } catch (err) { // Interceptor threw an error
-
-        console.log(err);
-        next();
+        //custom exception handling
 
     }
-
-});
+);
 
 app.get('/', function (req, res) {
     res.send('Was not a robot and we are here inside app');
 });
 
 app.listen(1337);
+
 console.log('Server running at http://127.0.0.1:1337/');

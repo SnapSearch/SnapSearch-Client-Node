@@ -70,8 +70,5 @@ Todo
 ----
 
 1. Make the client download gzipped version, but also decode properly
-2. Create a ConnectInterceptor allowing an easier integration with Connect
-3. Make it ignore extensions properly...
-4. Interceptor needs before and after intercept
-5. We need to setup responseCallback and exceptionCallback on connectInterceptor
-6. PHP needs an exceptionCallback!!!!!
+2. Update examples onto the README.
+3. Write tests for connectInterceptor.

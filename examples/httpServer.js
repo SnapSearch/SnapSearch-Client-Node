@@ -1,43 +1,42 @@
-'use strict';
-
 var http = require('http');
-var SnapSearch = require('../');
+var snapsearch = require('snapsearch-client-nodejs');
 
-var client = new SnapSearch.Client('demo@polycademy.com', 'a2XEBCF6H5Tm9aYiwYRtdz7EirJDKbKHXl7LzA21boJVkxXD3E');
-var detector = new SnapSearch.Detector();
-var interceptor = new SnapSearch.Interceptor(client, detector);
+var client = new snapsearch.Client('EMAIL', 'KEY');
+var detector = new snapsearch.Detector();
+var interceptor = new snapsearch.Interceptor(client, detector);
 
 // robots object can be manipulated in code
- detector.robots.ignore.push('Adsbot-Google');
-
+// detector.robots.ignore.push('Adsbot-Google');
 
 http.createServer(function (req, res) {
     
     try {
+
         // call interceptor
         interceptor.intercept(req, function (data) {
             // if we get data back it was a bot and we have a snapshot back from SnapSearch
             if (data) {
-                console.log(data);
 
-                res.writeHead(200, {
-                    'Content-Type': 'text/plain'
-                });
+                if (data.headers) {
+                    data.headers.forEach(function (header) {
+                        if (header.name.toLowerCase() === 'location') {
+                            res.setHeader('Location', header.value);
+                        }
+                    });
+                }
 
-                res.end('Was a robot and SnapChat Intercepted it Correctly');
+                res.statusCode = data.status;
 
-            } else { // It is a normal request process it normally
+                res.end(data.html);
 
-                res.writeHead(200, {
-                    'Content-Type': 'text/plain'
-                });
+            } else {
 
-                res.end('Was not a robot and we are here inside app');
+                // Request is not intercepted, proceed with the rest of the application...
+
             }
         });
-    } catch (err) { // Interceptor threw an error
 
-    }
+    } catch (err) {}
 
 }).listen(1337, '127.0.0.1');
 
