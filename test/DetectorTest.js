@@ -14,6 +14,15 @@ app.get( '/getReqObj', function ( req, res ) {
 app.post( '/getReqObj', function ( req, res ) {
     res.json( JSON.parse( toString( req )));
 });
+app.get( '/getReqObj/song.html', function ( req, res ) {
+    res.json( JSON.parse ( toString( req )));
+});
+app.get( '/getReqObj/song.html.mp3', function ( req, res) {
+    res.json( JSON.parse ( toString( req )));
+});
+app.get( '/getReqObj.mp3', function ( req, res) {
+    res.json( JSON.parse ( toString( req )));
+});
 
 describe( 'Detector', function () {
 
@@ -24,7 +33,7 @@ describe( 'Detector', function () {
             request( app )
             .get( '/getReqObj' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
+            .set( 'User-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
             .expect( 200 )
             .end(function ( err, res ) {
                 
@@ -72,7 +81,7 @@ describe( 'Detector', function () {
             request( app )
             .get( '/getReqObj' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'SnapSearch' )
+            .set( 'User-Agent', 'SnapSearch' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -96,7 +105,7 @@ describe( 'Detector', function () {
             request( app )
             .post( '/getReqObj' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'AdsBot-Google ( http://www.google.com/adsbot.html)' )
+            .set( 'User-Agent', 'AdsBot-Google ( http://www.google.com/adsbot.html)' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -120,7 +129,7 @@ describe( 'Detector', function () {
             request( app )
             .get( '/getReqObj' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'Googlebot-Video/1.0' )
+            .set( 'User-Agent', 'Googlebot-Video/1.0' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -144,7 +153,7 @@ describe( 'Detector', function () {
             request( app )
             .get( '/getReqObj' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'msnbot/1.1 ( http://search.msn.com/msnbot.htm)' )
+            .set( 'User-Agent', 'msnbot/1.1 ( http://search.msn.com/msnbot.htm)' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -168,7 +177,7 @@ describe( 'Detector', function () {
             request( app )
             .get( '/getReqObj' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'msnbot/1.1 ( http://search.msn.com/msnbot.htm)' )
+            .set( 'User-Agent', 'msnbot/1.1 ( http://search.msn.com/msnbot.htm)' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -187,13 +196,61 @@ describe( 'Detector', function () {
 
         });
 
+        it( 'Valid file extensions should be intercepted if other factors allow it', function (done) {
+
+            request( app )
+            .get( '/getReqObj/song.html?key=value' )
+            .set( 'Accept', 'application/json' )
+            .set( 'User-Agent', 'AdsBot-Google ( http://www.google.com/adsbot.html)' )
+            .expect( 200 )
+            .end(function ( err, res ) {
+
+                if ( err ) return done( err );
+
+                var request = res.body;
+
+                var detector = new Detector(null, null, true);
+                detector.setRequest( request );
+
+                assert.ok( detector.detect(), 'should have returned true since it has a valid html file extension' );
+
+                done();
+
+            });
+
+        });
+
+        it( 'Invalid file extensions should not be intercepted', function (done) {
+
+            request( app )
+            .get( '/getReqObj/song.html.mp3?key=value' )
+            .set( 'Accept', 'application/json' )
+            .set( 'User-Agent', 'AdsBot-Google ( http://www.google.com/adsbot.html)' )
+            .expect( 200 )
+            .end(function ( err, res ) {
+
+                if ( err ) return done( err );
+
+                var request = res.body;
+
+                var detector = new Detector(null, null, true);
+                detector.setRequest( request );
+
+                assert.notOk( detector.detect(), 'should have returned false since it has a invalid mp3 file extension' );
+
+                done();
+
+            });
+
+        });
+
         it( 'Requests with _escaped_fragment_ parameter should be intercepted', function ( done ) {
 
             //this should be working with an empty _escaped_fragment_
             request( app )
             .get( '/getReqObj?key1=value1&_escaped_fragment_=' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
+            .set( 'User-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -222,7 +279,7 @@ describe( 'Detector', function () {
 
             a.get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
+            .set( 'User-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -251,12 +308,12 @@ describe( 'Detector', function () {
 
     describe( '#robots', function () {
 
-        it( 'robots array should be modifyable programically', function ( done ) {
+        it( 'robots array should be modifiable', function ( done ) {
 
             request( app )
             .get( '/getReqObj' )
             .set( 'Accept', 'application/json' )
-            .set( 'user-Agent', 'Adsbot-Google' )
+            .set( 'User-Agent', 'Adsbot-Google' )
             .expect( 200 )
             .end(function ( err, res ) {
 
@@ -270,6 +327,37 @@ describe( 'Detector', function () {
                 detector.robots.ignore.push('Adsbot-Google');
 
                 assert.notOk( detector.detect(), 'should have returned false since UserAgent is in ignore list' );
+
+                done();
+
+            });
+
+        });
+
+    });
+    
+    describe( '#extensions', function () {
+
+        it( 'extensions array should be modifiable', function ( done ) {
+
+            request( app )
+            .get( '/getReqObj.mp3' )
+            .set( 'Accept', 'application/json' )
+            .set( 'User-Agent', 'AdsBot-Google ( http://www.google.com/adsbot.html)' )
+            .expect( 200 )
+            .end(function ( err, res ) {
+
+                if ( err ) return done( err );
+
+                var request = res.body;
+
+                var detector = new Detector(null, null, true);
+                detector.setRequest( request );
+
+                detector.extensions['js'] = [];
+                detector.extensions['js'].push('mp3');
+
+                assert.ok( detector.detect(), 'should have returned true since mp3 was added as a valid extension, and the user agent is a robot' );
 
                 done();
 

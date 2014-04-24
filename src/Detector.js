@@ -120,7 +120,7 @@ Detector.prototype.detect = function () {
     //detect extensions in order to prevent direct requests to static files
     if ( this.checkFileExtensions ) {
 
-        var genericExtensions = ( Array.isArray( this.extensions ) && this.extensions.length > 0 ) ? this.extensions : [];
+        var genericExtensions = ( Array.isArray( this.extensions['generic'] ) && this.extensions['generic'].length > 0 ) ? this.extensions['generic'] : [];
 
         var jsExtensions = ( Array.isArray( this.extensions['js'] ) && this.extensions['js'].length > 0 ) ? this.extensions['js'] : [];
 
