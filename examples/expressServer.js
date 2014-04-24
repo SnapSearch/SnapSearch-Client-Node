@@ -12,17 +12,35 @@ var interceptor = new SnapSearch.Interceptor(client, detector);
 app.use(function (req, res, next) {
 
     try {
+
         // call interceptor
         interceptor.intercept(req, function (data) {
             // if we get data back it was a bot and we have a snapshot back from SnapSearch
             if (data) {
-                console.log(data);
-                res.send('Was a robot and SnapChat Intercepted it Correctly');
+
+                console.log('Was a robot and SnapChat Intercepted it Correctly');
+
+                if (data.headers) {
+                    data.headers.forEach(function (header) {
+                        if (header.name.toLowerCase() === 'location') {
+                            res.location(header.value);
+                        }
+                    });
+                }
+
+                return res.send(data.status, data.html);
+
             } else { // It is a normal request continue normally
+
                 next();
+            
             }
         });
+
     } catch (err) { // Interceptor threw an error
+
+        console.log(err);
+        next();
 
     }
 
