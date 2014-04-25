@@ -34,7 +34,6 @@ describe( 'Interceptor', function () {
             .get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
             .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
-            .expect( 200 )
             .end(function ( err, res ) {
 
                 if ( err ) return done( err );
@@ -53,9 +52,12 @@ describe( 'Interceptor', function () {
 
                     var response = {
                         status : 200,
-                        headers : {
-                            Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
-                        },
+                        headers : [
+                            {
+                                name: 'Date',
+                                value: 'Tue, 19 Nov 2013 18:23:41 GMT'
+                            }
+                        ],
                         html : '<html>Hi!</html>',
                         screenshot : '',
                         date : '324836',
@@ -80,7 +82,6 @@ describe( 'Interceptor', function () {
             .get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
             .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
-            .expect( 200 )
             .end(function ( err, res ) {
 
                 if ( err ) return done( err );
@@ -93,9 +94,12 @@ describe( 'Interceptor', function () {
 
                 var response = {
                     status : 201,
-                    headers : {
-                        Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
-                    },
+                    headers : [
+                        {
+                            name: 'Date',
+                            value: 'Tue, 19 Nov 2013 18:23:41 GMT'
+                        }
+                    ],
                     html : '<html>Hi!</html>',
                     screenshot : '',
                     date : '324836',
@@ -125,7 +129,6 @@ describe( 'Interceptor', function () {
             .get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
             .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
-            .expect( 200 )
             .end(function ( err, res ) {
 
                 if ( err ) return done( err );
@@ -142,9 +145,12 @@ describe( 'Interceptor', function () {
 
                 var response = {
                     status : 304,
-                    headers : {
-                        Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
-                    },
+                    headers : [
+                        {
+                            name: 'Date',
+                            value: 'Tue, 19 Nov 2013 18:23:41 GMT'
+                        }
+                    ],
                     html : '<html>Hi!</html>',
                     screenshot : '',
                     date : '324836',
@@ -170,7 +176,6 @@ describe( 'Interceptor', function () {
             .get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
             .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
-            .expect( 200 )
             .end(function ( err, res ) {
 
                 if ( err ) return done( err );
@@ -179,9 +184,12 @@ describe( 'Interceptor', function () {
 
                 var response = {
                     status : 404,
-                    headers : {
-                        Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
-                    },
+                    headers : [
+                        {
+                            name: 'Date',
+                            value: 'Tue, 19 Nov 2013 18:23:41 GMT'
+                        }
+                    ],
                     html : '<html>Hi!</html>',
                     screenshot : '',
                     date : '324836',
@@ -214,7 +222,6 @@ describe( 'Interceptor', function () {
             .get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
             .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
-            .expect( 200 )
             .end(function ( err, res ) {
 
                 if ( err ) return done( err );
@@ -223,9 +230,12 @@ describe( 'Interceptor', function () {
 
                 var response = {
                     status : 100,
-                    headers : {
-                        Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
-                    },
+                    headers : [
+                        {
+                            name: 'Date',
+                            value: 'Tue, 19 Nov 2013 18:23:41 GMT'
+                        }
+                    ],
                     html : '<html>Hi!</html>',
                     screenshot : '',
                     date : '324836',
@@ -239,9 +249,12 @@ describe( 'Interceptor', function () {
                 client.request = function ( url, callback ) {
                     callback({
                         status : 404,
-                        headers : {
-                            Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
-                        },
+                        headers : [
+                            {
+                                name: 'Date',
+                                value: 'Tue, 19 Nov 2013 18:23:41 GMT'
+                            }
+                        ],
                         html : '<html>Hi!</html>',
                         screenshot : '',
                         date : '324836',
@@ -270,7 +283,6 @@ describe( 'Interceptor', function () {
             .get( '/getReqObj?key1=value1&_escaped_fragment_=%2Fhashpath%3Fkey2=value2' )
             .set( 'Accept', 'application/json' )
             .set( 'user-Agent', 'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0' )
-            .expect( 200 )
             .end(function ( err, res ) {
 
                 if ( err ) return done( err );
@@ -282,9 +294,12 @@ describe( 'Interceptor', function () {
                 client.request = function ( url, callback ) {
                     var response = {
                         status : 200,
-                        headers : {
-                            Date : 'Tue, 19 Nov 2013 18:23:41 GMT'
-                        },
+                        headers : [
+                            {
+                                name: 'Date',
+                                value: 'Tue, 19 Nov 2013 18:23:41 GMT'
+                            }
+                        ],
                         html : '<html>Hi!</html>',
                         screenshot : '',
                         date : '324836',

@@ -55,7 +55,7 @@ module.exports = function (interceptor, responseCallback, exceptionCallback) {
                                 response.set(header.name, header.value);
                             });
                         }
-
+                        
                         return response.send(data.status, data.html);
 
                     } else {
