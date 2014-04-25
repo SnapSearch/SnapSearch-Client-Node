@@ -29,7 +29,200 @@ npm install snapsearch-client-nodejs --save
 Usage
 -----
 
-Check the examples folder.
+SnapSearch's NodeJS client is broken up into 3 basic classes, Client, Detector and Interceptor. All it needs is a request object extended from NodeJS's `http.IncomingMessage` prototype. This allows you to use it any NodeJS framework. However we have bundled a connect compatible middleware for ease of use. This middleware should be used at the entry/bootstrap point of your NodeJS application. There are more examples are in the examples folder.
+
+For full documentation on the API and API request parameters see: https://snapsearch.io/documentation
+
+### Basic Connect/Express Usage
+
+```javascript
+var express = require('express');
+var snapsearch = require('snapsearch-client-nodejs');
+
+var app = express();
+
+//by default the it will only intercept and return a response with only status, header location, and html body
+app.use(snapsearch.connect(
+    new snapsearch.Interceptor(
+        new snapsearch.Client('ENTER YOUR EMAIL', 'ENTER YOUR KEY'),
+        new snapsearch.Detector()
+    )
+);
+
+app.get('/', function (request, response) {
+    response.send('Was not a robot and we are here inside app');
+});
+
+app.listen(1337);
+```
+
+Here's an example response coming back from SnapSearch's API (not all variables are available, you need to check your request parameters):
+
+```javascript
+{
+    "code": "success",
+    "content": {
+        "cache"             => true/false,
+        "callbackResult"    => "",
+        "date"              => 1390382314,
+        "headers"           => [
+            {
+                "name"  => "Content-Type",
+                "value" => "text/html"
+            }
+        ],
+        "html"              => "<html></html>",
+        "message"           => "Success/Failed/Validation Errors",
+        "pageErrors"        => [
+            {
+                "error"   => "Error: document.querySelector(...) is null",
+                "trace"   => [
+                    {
+                        "file"      => "filename",
+                        "function"  => "anonymous",
+                        "line"      => "41",
+                        "sourceURL" => "urltofile"
+                    }
+                ]
+            }
+        ],
+        "screenshot"         => "BASE64 ENCODED IMAGE CONTENT",
+        "status"            => 200
+    }
+}
+```
+
+### Advanced Connect/Express Usage
+
+```javascript
+var express = require('express');
+var snapsearch = require('snapsearch-client-nodejs');
+
+var app = express();
+
+app.use(snapsearch.connect(
+    new snapsearch.Interceptor(
+        new snapsearch.Client('ENTER YOUR EMAIL', 'ENTER YOUR KEY'),
+        new snapsearch.Detector()
+    ),
+    function (response) {
+        
+        //optional customised response callback
+        //if intercepted, this allows you to specify what kind of status, headers and html body to return
+        //remember headers is in the format of [ { name: '', value: '' },... ]
+
+        return {
+            status: response.status,
+            headers: response.headers,
+            html: response.html
+        };
+
+    },
+    function (error, request) {
+    
+        //optional exception callback
+        //exceptions will only be called in the event that SnapSearchClient could not contact the API or when there are validation errors
+        //in production you'll just ignore these errors, but log them here
+
+    }
+);
+
+app.get('/', function (request, response) {
+    response.send('Was not a robot and we are here inside app');
+});
+
+app.listen(1337);
+```
+
+### Advanced Usage
+
+The below shows how you can manipulate the properties and parameters of the client, detector and interceptor. The example shows them being applied on a simple HTTP server, however the principle is the same with Express/Connect integrations.
+
+```
+var http = require('http');
+var snapsearch = require('snapsearch-client-nodejs');
+
+var apiRequestParameters = {
+    //add your API request parameters if you have any...
+};
+
+var blackListedRoutes = [
+    //add your black listed routes in regex if you have any...
+];
+
+var whiteListedRoutes = [
+    //add your white listed routes in regex if you have any...
+];
+
+var checkFileExtensions = false; //if you wish for SnapSearch Client to check if the URL leads to a static file, switch this on to a boolean true, however this is expensive and time consuming, so it's better to use black listed or white listed routes
+
+var trustedProxy = false; //if you are behind a reverse proxy, switch this to true so we can acquire the real protocol from X-Forwarded-Proto header
+
+var pathToCustomRobotsJson = ''; //custom robots json path
+
+var pathToCustomExtensionsJson = ''; //custom extensions json path
+
+var client = new snapsearch.Client(
+    'ENTER YOUR EMAIL', 
+    'ENTER YOUR KEY',
+    apiRequestParameters
+);
+
+var detector = new snapsearch.Detector(
+    blackListedRoutes,
+    whiteListedRoutes,
+    checkFileExtensions,
+    trustedProxy,
+    pathToCustomRobotsJson,
+    pathToCustomExtensionsJson
+);
+
+var interceptor = new snapsearch.Interceptor(client, detector);
+
+//robots can be direct accessed and manipulated
+detector.robots.ignore.push('Adsbot-Google');
+detector.robots.match.push('SomeBotIWantToMatch');
+
+//extensions can as well, add to 'generic' or 'js'
+detector.extensions.generic.push('valid generic extension');
+detector.extensions.js = ['valid js extension']; //there is currently no js extensions
+
+//the beforeIntercept callback is called after the Detector has detected a search engine robot
+//if this callback returns an object, the object will be used as the response to interceptor.intercept
+//use it for client side caching in order to have millisecond responses to search engines
+//the afterIntercept callback can be used to store the snapshot from SnapSearch as a client side cached resource
+//this is of course optional as SnapSearch caches your snapshot as well!
+clientCache = require('hypothetical-client-cache-object');
+interceptor.beforeIntercept(function (url) {
+    return clientCache.get(url);
+}).afterIntercept(function (url, data) {
+    clientCache.put(url, data);    
+});
+
+http.createServer(function (request, response) {
+    try {
+        // call interceptor
+        interceptor.intercept(request, function (data) {
+            // if we get data back it was a bot and we have a snapshot back from SnapSearch
+            if (data) {
+                if (data.headers) {
+                    data.headers.forEach(function (header) {
+                        if (header.name.toLowerCase() === 'location') {
+                            response.setHeader('Location', header.value);
+                        }
+                    });
+                }
+                response.statusCode = data.status;
+                response.end(data.html);
+            } else {
+                // Proceed with the rest of the application...
+            }
+        });
+    } catch (error) {}
+}).listen(1337, '127.0.0.1');
+```
+
+That's pretty much it. Check the source code for more, it's tiny and well documented.
 
 Development
 -----------
@@ -69,6 +262,4 @@ To run tests in Windows use `./node_modules/.bin/mocha --reporter spec`.
 Todo
 ----
 
-1. Make the client download gzipped version, but also decode properly
-2. Update examples onto the README.
-3. Write tests for connectInterceptor.
+1. Make the client download gzipped version, but also decode properly.
