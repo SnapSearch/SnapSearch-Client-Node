@@ -138,7 +138,7 @@ app.listen(1337);
 
 The below shows how you can manipulate the properties and parameters of the client, detector and interceptor. The example shows them being applied on a simple HTTP server, however the principle is the same with Express/Connect integrations.
 
-```
+```javascript
 var http = require('http');
 var snapsearch = require('snapsearch-client-nodejs');
 
