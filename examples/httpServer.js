@@ -1,7 +1,11 @@
 var http = require('http');
 var snapsearch = require('snapsearch-client-nodejs');
 
-var client = new snapsearch.Client('EMAIL', 'KEY');
+var client = new snapsearch.Client('EMAIL', 'KEY', {}, function (error, debugging) {
+    //custom exception handler for Client errors such as HTTP errors or validation errors from the API
+    console.log(error);
+    console.log(debugging);
+});
 var detector = new snapsearch.Detector();
 var interceptor = new snapsearch.Interceptor(client, detector);
 

@@ -9,7 +9,7 @@ module.exports = SnapSearchException;
  * Constructor
  *
  * @param string    message  Error message
- * @param array     errors   Array of errors objects or strings
+ * @param object    errors   Object containing more details on the error
  * @param integer   code     Exception Code
  * @param Exception previous Previous exception
  */
@@ -17,7 +17,7 @@ function SnapSearchException( message, errors ) {
 
     this.name = 'SnapSearchException';
     this.message = message || '';
-    this.errorsArray = errors;
+    this.errorDetails = errors;
 }
 
 SnapSearchException.prototype = new Error();
@@ -35,46 +35,23 @@ SnapSearchException.prototype.getMessage = function () {
 };
 
 /**
- * Gets an array of all errors. It incorporates the basic single message error of most exceptions.
- * This way you only have to use getErrors() regardless of whether it's multiple errors or a single error.
+ * Gets an object containing more details on the error
  *
- * @return array Array of errors
+ * @return object Error details
  */
 SnapSearchException.prototype.getErrors = function () {
 
-    return this.errorsArray;
+    return this.errorDetails;
 
 };
 
 /**
- * Gets a error string that is combined from the errors array.
+ * Gets a JSON string of the detailed error object
  *
  * @return string
  */
 SnapSearchException.prototype.getErrorString = function () {
 
-    return JSON.stringify( this.errorsArray, null, "\t" );
-
-};
-
-/**
- * Appends an error to the array of errors. This can be useful for multiple errors at the same time.
- *
- * @param  object/string error Message of the error
- */
-SnapSearchException.prototype.appendError = function ( error ) {
-
-    this.errorsArray.push( error );
-
-};
-
-/**
- * Prepends an error to the array of errors.
- *
- * @param  object/string error Message of the error
- */
-SnapSearchException.prototype.prependError = function ( error ) {
-
-    this.errorsArray.unshift( error );
+    return JSON.stringify( this.errorDetails, null, "\t" );
 
 };

@@ -5,7 +5,11 @@ var app = express();
 
 app.use(snapsearch.connect(
     new snapsearch.Interceptor(
-        new snapsearch.Client('EMAIL', 'KEY'),
+        new snapsearch.Client('EMAIL', 'KEY', {}, function (error, debugging) {
+                //custom exception handler for Client errors such as HTTP errors or validation errors from the API
+                console.log(error);
+                console.log(debugging);
+        }),
         new snapsearch.Detector()
     ),
     function (data) {
@@ -17,13 +21,8 @@ app.use(snapsearch.connect(
             headers: data.headers
         };
 
-    },
-    function (error, request) {
-
-        //custom exception handling
-
     }
-);
+));
 
 app.get('/', function (req, res) {
     res.send('Was not a robot and we are here inside app');

@@ -11,16 +11,19 @@ module.exports = Client;
 /**
  * Constructor
  *
- * @param string  apiEmail          Email used for HTTP Basic
- * @param string  apiKey            Key used for HTTP Basic
- * @param object  requestParameters Parameters passed to SnapSearch API
- * @param boolean apiUrl            Custom API Url
- * @param Request api               HTTP Request Library extending Httpful\Request
+ * @param string   apiEmail          Email used for HTTP Basic
+ * @param string   apiKey            Key used for HTTP Basic
+ * @param object   requestParameters Parameters passed to SnapSearch API
+ * @param function exceptionCallback Custom exception callback accepting a SnapSearchException and a 
+ *                                   debugging object: {apiUrl, apiEmail, apiKey, requestParameters}
+ * @param boolean  apiUrl            Custom API Url
+ * @param Request  api               HTTP Request Library extending Httpful\Request
  */
 function Client(
     apiEmail,
     apiKey,
     requestParameters,
+    exceptionCallback, 
     apiUrl,
     api
 ) {
@@ -28,9 +31,9 @@ function Client(
     this.apiEmail = apiEmail;
     this.apiKey = apiKey;
     this.requestParameters = ( requestParameters ) ? requestParameters : {};
+    this.exceptionCallback = ( typeof exceptionCallback == "function" ) ? exceptionCallback : null;
     this.apiUrl = ( apiUrl ) ? apiUrl : 'https://snapsearch.io/api/v1/robot';
     this.api = ( api ) ? api : Api;
-    this.errors = null;
 }
 
 /**
@@ -48,6 +51,7 @@ Client.prototype.request = function ( currentUrl, callback ) {
     //the current url must contain the entire url with the _escaped_fragment_ parsed out
     this.requestParameters.url = currentUrl;
 
+    var that = this;
     this.api(
         {
             method: 'POST',
@@ -58,35 +62,66 @@ Client.prototype.request = function ( currentUrl, callback ) {
             },
             timeout: 30000,
             json: this.requestParameters,
-            strictSSL: true
+            strictSSL: true,
+            gzip: true
         },
-        function ( error, status, response ) {
+        function ( error, response, body ) {
 
-            // we always have a response from SnapSearch Service if the request doesn't end up in an error
-            if ( !error ) {
+            if ( that.exceptionCallback ) {
+                
+                try {
 
-                if ( response.code == 'success' ) {
+                    handleResponse();
 
-                    //will return status, headers (array of name => value), html, screenshot, date
-                    callback( response.content );
+                } catch (e) {
+                    
+                    that.exceptionCallback( e, {
+                        apiUrl:            that.apiUrl,
+                        apiEmail:          that.apiEmail,
+                        apiKey:            that.apiKey,
+                        requestParameters: that.requestParameters
+                    } );
+
+                    callback( false ); // pass on to the next middleware
                     return;
-
-                } else if ( response.code == 'validation_error' ) {
-
-                    //means that something was incorrect from the request parameters or the url could not be accessed
-                    throw new SnapSearchException( 'Validation error from SnapSearch. Check your request parameters.', response.content );
-
-                } else {
-
-                    //system error on SnapSearch, nothing we can do
-                    callback( false );
-                    return;
-
+                
                 }
 
             } else {
 
-                throw new SnapSearchException( 'Could not establish a connection to SnapSearch.' );
+                handleResponse();
+            
+            }
+
+            function handleResponse () {
+
+                // we always have a response from SnapSearch Service if the request doesn't end up in an error
+                if ( !error ) {
+
+                    if ( body.code == 'success' ) {
+
+                        //will return status, headers (array of name => value), html, screenshot, date
+                        callback( body.content );
+                        return;
+
+                    } else if ( body.code == 'validation_error' ) {
+
+                        //means that something was incorrect from the request parameters or the url could not be accessed
+                        throw new SnapSearchException( 'Validation error from SnapSearch. Check your request parameters.', body.content );
+
+                    } else {
+
+                        //system error on SnapSearch, nothing we can do
+                        callback( false );
+                        return;
+
+                    }
+
+                } else {
+
+                    throw new SnapSearchException( 'Could not establish a connection to SnapSearch.', error );
+
+                }
 
             }
 

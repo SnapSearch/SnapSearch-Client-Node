@@ -20,11 +20,11 @@ describe( 'SnapSearchException', function () {
 
     describe( '#getErrors()', function () {
 
-        it( 'should return an Array of Error Messages', function () {
+        it( 'should return an object containing detailed errors', function () {
             var errors = snapSearchException.getErrors();
-            assert.instanceOf( errors, Array, 'getErrors() should return an array' );
-            assert.equal( 'Url is malformed!', errors[ 0 ].url, 'array returned by getErrors() contains error messages' );
-            assert.equal( 'Validation error', snapSearchException.getMessage(), 'getMessage() return correct error message' );
+            assert.instanceOf( errors, Array, 'getErrors() should return an array object' );
+            assert.equal( 'Url is malformed!', errors[ 0 ].url, 'array object returned by getErrors() contains error messages' );
+            assert.equal( 'Validation error', snapSearchException.getMessage(), 'getMessage() returns correct error message' );
         });
 
     });

@@ -44,7 +44,14 @@ var app = express();
 //by default the it will only intercept and return a response with only status, header location, and html body
 app.use(snapsearch.connect(
     new snapsearch.Interceptor(
-        new snapsearch.Client('ENTER YOUR EMAIL', 'ENTER YOUR KEY'),
+        new snapsearch.Client('ENTER YOUR EMAIL', 'ENTER YOUR KEY', {}, function (error, debugging) {
+                //mandatory custom exception handler for Client errors such as HTTP errors or validation errors from the API
+                console.log(error); 
+                // error is a SnapSearchException containing a message and errorDetails which can acquired from `getMessage()` `getErrors()`
+                console.log(debugging); 
+                // debugging is an object containing these: {apiUrl, apiKey, apiEmail, requestParameters}
+                // if an exception happens, the middleware is a no-op and passes through to the next stage of your application
+        }),
         new snapsearch.Detector()
     )
 );
@@ -102,7 +109,13 @@ var app = express();
 
 app.use(snapsearch.connect(
     new snapsearch.Interceptor(
-        new snapsearch.Client('ENTER YOUR EMAIL', 'ENTER YOUR KEY'),
+        new snapsearch.Client('ENTER YOUR EMAIL', 'ENTER YOUR KEY', {}, function (error, debugging) {
+                //mandatory custom exception handler for Client errors such as HTTP errors or validation errors from the API
+                //exceptions will only be called in the event that SnapSearchClient could not contact the API or when there are validation errors
+                //in production you'll just ignore these errors, but log them here, the middleware is a no-op and will just pass through, and will not halt your application
+                console.log(error);
+                console.log(debugging);
+        }),
         new snapsearch.Detector()
     ),
     function (response) {
@@ -116,13 +129,6 @@ app.use(snapsearch.connect(
             headers: response.headers,
             html: response.html
         };
-
-    },
-    function (error, request) {
-    
-        //optional exception callback
-        //exceptions will only be called in the event that SnapSearchClient could not contact the API or when there are validation errors
-        //in production you'll just ignore these errors, but log them here
 
     }
 );
@@ -165,7 +171,12 @@ var pathToCustomExtensionsJson = ''; //custom extensions json path
 var client = new snapsearch.Client(
     'ENTER YOUR EMAIL', 
     'ENTER YOUR KEY',
-    apiRequestParameters
+    apiRequestParameters,
+    function (error, debugging) {
+        // mandatory
+        console.log(error);
+        console.log(debugging);
+    }
 );
 
 var detector = new snapsearch.Detector(
@@ -258,8 +269,3 @@ Tests
 Unit tests are written using Mocha and Chai. To run tests use `npm test`.
 
 To run tests in Windows use `./node_modules/.bin/mocha --reporter spec`.
-
-Todo
-----
-
-1. Make the client download gzipped version, but also decode properly.
