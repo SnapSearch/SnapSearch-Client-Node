@@ -238,9 +238,9 @@ That's pretty much it. Check the source code for more, it's tiny and well docume
 Reverse Proxies
 ---------------
 
-If you are behind a reverse proxy such as NGINX or Apache, certain HTTP information between the client and the proxy needs to be explicitly passed by the proxy to the backend, this includes the HTTP protocol and hostname. This information is usually passed in `X-Forwarded-Proto` & `X-Forwarded-Host` headers. Because these headers can be forged, by default we do not automatically trust these headers. But if you control the proxy, and you trust these headers, then you need to switch true the `trustedProxy` boolean flag in the `Detector` function constructor. You may call it like: 
+If you are behind a reverse proxy such as NGINX, Apache or certain PAAS providers (Heroku), certain HTTP information between the client and the proxy needs to be explicitly passed by the proxy to the backend, this includes the HTTP protocol and hostname. This information is usually passed in `X-Forwarded-Proto` & `X-Forwarded-Host` headers. Because these headers can be forged, by default we do not automatically trust these headers. But if you control the proxy, and you trust these headers, then you need to switch true the `trustedProxy` boolean flag in the `Detector` function constructor. You may call it like: 
 
-```
+```js
 var trustedProxy = true;
 
 var detector = new snapsearch.Detector(
