@@ -49,6 +49,8 @@ function Detector(
 Detector.prototype.setRequest = function ( request ) {
 
     this.request = request;
+    //we want work on the originalUrl in case the request object has this property such as the express framework
+    this.request.originalUrl = (this.request.originalUrl) ? this.request.originalUrl : this.request.url;
 
 };
 
@@ -172,7 +174,7 @@ Detector.prototype.detect = function () {
     }
 
     //detect escaped fragment (since the ignored user agents has been already been detected, SnapSearch won't continue the interception loop)
-    if ( this.request.url.indexOf( '_escaped_fragment_' ) != -1 ) {
+    if ( this.request.originalUrl.indexOf( '_escaped_fragment_' ) != -1 ) {
         return true;
     }
 
@@ -200,17 +202,17 @@ Detector.prototype.detect = function () {
  */
 Detector.prototype.getEncodedUrl = function () {
 
-    if ( this.request.url.indexOf( '_escaped_fragment_' ) != -1 ) {
+    if ( this.request.originalUrl.indexOf( '_escaped_fragment_' ) != -1 ) {
 
         var qsAndHash = this.getRealQsAndHashFragment( true );
 
-        var url = this.getProtocolString() + '://' + this.request.headers.host + this.request.url.split( '?' )[ 0 ] + qsAndHash.qs + qsAndHash.hash;
+        var url = this.getProtocolString() + '://' + this.getHost() + this.request.originalUrl.split( '?' )[ 0 ] + qsAndHash.qs + qsAndHash.hash;
 
         return url;
 
     } else {
 
-        return this.request.headers.host + this.request.url;
+        return this.getProtocolString() + '://' + this.getHost() + this.request.originalUrl;
 
     }
 
@@ -218,21 +220,43 @@ Detector.prototype.getEncodedUrl = function () {
 
 /**
  * Detect whether its a http or https request.
- * If trustedProxy is set we trust the proxy and look at its headers to determine if request was https or http.
+ * If trustedProxy is set we trust the proxy and look at its headers.
  *
- * @return returns the protocol string
+ * @return string Protocol string
  */
 Detector.prototype.getProtocolString = function () {
 
-    if ( this.request.connection && this.request.connection.encrypted ) {
-        return 'https';
-    }
-    if ( !this.trustedProxy ) {
-        return 'http';
-    }
-    var proto = this.request.headers[ 'x-forwarded-proto' ] || 'http';
+    var proto = (this.request.connection && this.request.connection.encrypted) ? 'https' : 'http';
 
-    return proto.split( /\s*,\s*/ )[ 0 ];
+    if ( !this.trustedProxy ) {
+        return proto;
+    }
+
+    proto = this.request.headers[ 'X-Forwarded-Proto' ] || proto;
+    
+    //X-Forwarded-Proto is normally only ever a single value, but this is to be safe.
+    return proto.split(/\s*,\s*/)[0];
+
+};
+
+/**
+ * Detect host name and port.
+ * If trustedProxy is set we trust the proxy and look at its headers.
+ * 
+ * @return string Host
+ */
+Detector.prototype.getHost = function () {
+
+    var host = this.request.headers.host;
+
+    if ( this.trustedProxy ) {
+        host = this.request.headers[ 'X-Forwarded-Host' ] || host;
+    }
+
+    //HTTP 1.0 doesn't require the host header, but 1.1 requires the host header
+    if ( !host ) return '';
+
+    return host;
 
 };
 
@@ -244,17 +268,17 @@ Detector.prototype.getProtocolString = function () {
  */
 Detector.prototype.getDecodedPath = function () {
 
-    if ( this.request.url.indexOf( '_escaped_fragment_' ) != -1 ) {
+    if ( this.request.originalUrl.indexOf( '_escaped_fragment_' ) != -1 ) {
 
         var qsAndHash = this.getRealQsAndHashFragment( false );
 
-        var path = this.request.url.split( '&' )[ 0 ] + qsAndHash.qs + qsAndHash.hash;
+        var path = this.request.originalUrl.split( '&' )[ 0 ] + qsAndHash.qs + qsAndHash.hash;
 
         return path;
 
     } else {
 
-        return decodeURIComponent( this.request.url );
+        return decodeURIComponent( this.request.originalUrl );
     }
 
 };
@@ -279,7 +303,7 @@ Detector.prototype.getDecodedPath = function () {
  */
 Detector.prototype.getRealQsAndHashFragment = function ( encode ) {
 
-    var queryParameters = url.parse( this.request.url, true ).query;
+    var queryParameters = url.parse( this.request.originalUrl, true ).query;
 
     var hashString = queryParameters._escaped_fragment_;
 

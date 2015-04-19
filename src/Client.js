@@ -109,11 +109,13 @@ Client.prototype.request = function ( currentUrl, callback ) {
                         //means that something was incorrect from the request parameters or the url could not be accessed
                         throw new SnapSearchException( 'Validation error from SnapSearch. Check your request parameters.', body.content );
 
+                    } else if ( body.code == 'system_error' ) {
+
+                        throw new SnapSearchException( 'System error from SnapSearch. Check your request parameters for localhost URLs, otherwise this is a temporary problem from the API.', body.content );
+
                     } else {
 
-                        //system error on SnapSearch, nothing we can do
-                        callback( false );
-                        return;
+                        throw new SnapSearchException( 'Unknown API code from SnapSearch.', body.content );
 
                     }
 
