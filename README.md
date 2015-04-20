@@ -253,6 +253,8 @@ var detector = new snapsearch.Detector(
 
 If you use Express, you may also need to enable `app.enable('trust proxy');`. See http://expressjs.com/guide/behind-proxies.html
 
+We have a demo of a working [SnapSearch enabled express application running on Heroku](https://github.com/SnapSearch/SnapSearch-Client-Node-Heroku-Demo).
+
 Development
 -----------
 
