@@ -70,7 +70,7 @@ Detector.prototype.setRequest = function ( request ) {
  */
 Detector.prototype.detect = function () {
 
-    var userAgent = this.request.headers[ 'user-agent' ];
+    var userAgent = caseInsensitiveLookup(this.request.headers, 'User-Agent');
     var realPath = this.getDecodedPath();
     var i;
 
@@ -232,7 +232,7 @@ Detector.prototype.getProtocolString = function () {
         return proto;
     }
 
-    proto = this.request.headers[ 'X-Forwarded-Proto' ] || proto;
+    proto = caseInsensitiveLookup(this.request.headers, 'X-Forwarded-Proto') || proto;
     
     //X-Forwarded-Proto is normally only ever a single value, but this is to be safe.
     return proto.split(/\s*,\s*/)[0];
@@ -250,7 +250,7 @@ Detector.prototype.getHost = function () {
     var host = this.request.headers.host;
 
     if ( this.trustedProxy ) {
-        host = this.request.headers[ 'X-Forwarded-Host' ] || host;
+        host = caseInsensitiveLookup(this.request.headers, 'X-Forwarded-Host') || host;
     }
 
     //HTTP 1.0 doesn't require the host header, but 1.1 requires the host header
@@ -361,4 +361,33 @@ function regExpEscape( str ) {
 
     return str.replace( /([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1' ).replace( /\x08/g, '\\x08' );
     
+}
+
+/**
+ * Looks up an object property in a case-insensitive manner, it will find the first property that matches.
+ * Although Node.js currently normalises request headers to lower case, this may not be true forever.
+ * The number of headers is pretty limited for any particular request. So this should add too much processing 
+ * time.
+ * 
+ * @param  object object
+ * @param  string lookup
+ * 
+ * @return mixed         Returns the property value or undefined if the lookup was not found.
+ */
+function caseInsensitiveLookup (object, lookup) {
+  
+    lookup = lookup.toLowerCase();
+
+    for (var property in object) {
+
+        if (object.hasOwnProperty(property) && lookup == property.toLowerCase()) {
+
+            return object[property];
+
+        }
+
+    }
+
+    return undefined;
+  
 }
