@@ -62,8 +62,7 @@ Client.prototype.request = function ( currentUrl, callback ) {
             },
             timeout: 30000,
             json: this.requestParameters,
-            strictSSL: true,
-            gzip: true
+            strictSSL: true
         },
         function ( error, response, body ) {
 
