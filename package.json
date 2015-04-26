@@ -1,6 +1,6 @@
 {
   "name": "snapsearch-client-nodejs",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "NodeJS HTTP Client Middleware Libraries for SnapSearch. Search engine optimisation for single page applications.",
   "repository": "git://github.com/SnapSearch/SnapSearch-Client-Node",
   "main": "index.js",
