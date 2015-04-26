@@ -63,7 +63,7 @@ module.exports = function (interceptor, responseCallback) {
                     if (data.headers) {
                         data.headers.forEach(function (header) {
                             if (header.name.toLowerCase() === 'location') {
-                                res.setHeader('Location', header.value);
+                                response.setHeader('Location', header.value);
                             }
                         });
                     }
