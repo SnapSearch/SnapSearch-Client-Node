@@ -31,6 +31,8 @@ Usage
 
 SnapSearch's NodeJS client is broken up into 3 basic classes, Client, Detector and Interceptor. All it needs is a request object extended from NodeJS's `http.IncomingMessage` prototype. This allows you to use it any NodeJS framework. However we have bundled a connect compatible middleware for ease of use. This middleware should be used at the entry/bootstrap point of your NodeJS application. There are more examples are in the examples folder.
 
+The order of middleware setup in Express **is** important. For most cases, you should place the SnapSearch middleware as closest to the kernel of your application as possible. This means placing the SnapSearch middleware setup lower in the sequence of `app.use` expressions. Any middleware augmenting the request and response that should be running when a normal user is accessing the site, should probably also run when SnapSearch is intercepting. Any middleware placed after SnapSearch will not run during an interception.
+
 For full documentation on the API and API request parameters see: https://snapsearch.io/documentation
 
 ### Basic Connect/Express Usage
@@ -118,16 +120,25 @@ app.use(snapsearch.connect(
         }),
         new snapsearch.Detector()
     ),
-    function (response) {
+    function (data) {
         
         //optional customised response callback
         //if intercepted, this allows you to specify what kind of status, headers and html body to return
         //remember headers is in the format of [ { name: '', value: '' },... ]
+        
+        // unless you know what you're doing, the location header is most likely sufficient
+        // if you are setting up gzip compression, see the heroku example https://github.com/SnapSearch/SnapSearch-Client-Node-Heroku-Demo
+        var newHeaders = [];
+        data.headers.forEach(function (header) {
+            if (header.name.toLowerCase() === 'location') {
+                newHeaders.push({name: header.name, value: header.value});
+            }
+        });
 
         return {
-            status: response.status,
-            headers: response.headers,
-            html: response.html
+            status: data.status,
+            headers: newHeaders,
+            html: data.html
         };
 
     }

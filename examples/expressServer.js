@@ -15,15 +15,21 @@ app.use(snapsearch.connect(
     function (data) {
 
         // this function is optional, and you can remove it
-        // that being said, by default SnapSearch does not pass through all the headers from the snapshot
-        // this is because there could be header mismatch errors
-        // you can however try it, and pass all headers, as this function is currently doing!
+        // by default SnapSearch does not pass through all the headers from the snapshot
 
-        //return an object for custom response handling
+        // unless you know what you're doing, the location header is most likely sufficient
+        // if you are setting up gzip compression, see the heroku example https://github.com/SnapSearch/SnapSearch-Client-Node-Heroku-Demo
+        var newHeaders = [];
+        data.headers.forEach(function (header) {
+            if (header.name.toLowerCase() === 'location') {
+                newHeaders.push({name: header.name, value: header.value});
+            }
+        });
+
         return {
             status: data.status,
-            html: data.html,
-            headers: data.headers
+            headers: newHeaders,
+            html: data.html
         };
 
     }
