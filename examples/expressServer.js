@@ -14,6 +14,11 @@ app.use(snapsearch.connect(
     ),
     function (data) {
 
+        // this function is optional, and you can remove it
+        // that being said, by default SnapSearch does not pass through all the headers from the snapshot
+        // this is because there could be header mismatch errors
+        // you can however try it, and pass all headers, as this function is currently doing!
+
         //return an object for custom response handling
         return {
             status: data.status,

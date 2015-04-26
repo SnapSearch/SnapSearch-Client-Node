@@ -48,11 +48,14 @@ module.exports = function (interceptor, responseCallback) {
 
                     if (data.headers) {
                         data.headers.forEach(function (header) {
-                            response.set(header.name, header.value);
+                            response.setHeader(header.name, header.value);
                         });
                     }
-                    
-                    return response.send(data.status, data.html);
+
+                    response.statusCode = data.status;
+                    response.end(data.html);
+
+                    return;
 
                 } else {
 
@@ -60,12 +63,15 @@ module.exports = function (interceptor, responseCallback) {
                     if (data.headers) {
                         data.headers.forEach(function (header) {
                             if (header.name.toLowerCase() === 'location') {
-                                response.location(header.value);
+                                res.setHeader('Location', header.value);
                             }
                         });
                     }
 
-                    return response.send(data.status, data.html);
+                    response.statusCode = data.status;
+                    response.end(data.html);
+
+                    return;
 
                 }
 
