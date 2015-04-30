@@ -165,6 +165,7 @@ var apiRequestParameters = {
 
 var blackListedRoutes = [
     //add your black listed routes in regex if you have any...
+    //for example: '^/sitemap.xml'
 ];
 
 var whiteListedRoutes = [
