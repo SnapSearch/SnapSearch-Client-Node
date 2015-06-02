@@ -320,7 +320,11 @@ Detector.prototype.getRealQsAndHashFragment = function ( encode ) {
         }
     }
 
-    queryString = '?' + queryString.join( '&' );
+    if (queryString.length > 0) {
+        queryString = '?' + queryString.join( '&' );
+    } else {
+        queryString = '';
+    }
 
     if ( hashString ) {
         hashString = '#!' + hashString;
