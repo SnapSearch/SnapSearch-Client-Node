@@ -58,7 +58,7 @@ app.use(snapsearch.connect(
         }),
         new snapsearch.Detector()
     )
-);
+));
 
 app.get('/', function (request, response) {
     response.send('Was not a robot and we are here inside app');
